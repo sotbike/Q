@@ -1,0 +1,295 @@
+r;md;lb;ub;type;subgroup
+-0,99;-0,83;-0,89;-0,76;fixed;pooled
+-0,9;-0,81;-0,88;-0,75;fixed;pooled
+-0,8;-0,8;-0,87;-0,74;fixed;pooled
+-0,7;-0,79;-0,85;-0,73;fixed;pooled
+-0,6;-0,77;-0,84;-0,71;fixed;pooled
+-0,5;-0,76;-0,82;-0,7;fixed;pooled
+-0,4;-0,75;-0,81;-0,69;fixed;pooled
+-0,3;-0,73;-0,79;-0,68;fixed;pooled
+-0,2;-0,72;-0,78;-0,67;fixed;pooled
+-0,1;-0,71;-0,76;-0,65;fixed;pooled
+0;-0,69;-0,74;-0,64;fixed;pooled
+0,1;0,68;-0,73;-0,63;fixed;pooled
+0,2;-0,66;-0,71;-0,62;fixed;pooled
+0,3;-0,65;-0,69;-0,6;fixed;pooled
+0,4;-0,63;-0,68;-0,59;fixed;pooled
+0,5;-0,62;-0,66;-0,58;fixed;pooled
+0,6;-0,6;-0,64;-0,56;fixed;pooled
+0,7;-0,58;-0,61;-0,54;fixed;pooled
+0,8;-0,55;-0,58;-0,52;fixed;pooled
+0,9;-0,51;-0,54;-0,49;fixed;pooled
+0,99;-0,39;-0,4;-0,37;fixed;pooled
+-0,99;-1,07;-1,51;-0,62;random;pooled
+-0,9;-1,05;-1,47;-0,61;random;pooled
+-0,8;-1,04;-1,47;-0,61;random;pooled
+-0,7;-1,02;-1,45;-0,6;random;pooled
+-0,6;-1,01;-1,43;-0,59;random;pooled
+-0,5;-0,99;-1,4;-0,58;random;pooled
+-0,4;-0,98;-1,38;-0,57;random;pooled
+-0,3;-0,96;-1,36;-0,56;random;pooled
+-0,2;-0,95;-1,35;-0,55;random;pooled
+-0,1;-0,93;-1,33;-0,54;random;pooled
+0;-0,92;-1,31;-0,53;random;pooled
+0,1;-0,91;-1,3;-0,52;random;pooled
+0,2;-0,89;-1,28;-0,51;random;pooled
+0,3;-0,88;-1,27;-0,49;random;pooled
+0,4;-0,87;-1,25;-0,48;random;pooled
+0,5;-0,86;-1,24;-0,47;random;pooled
+0,6;-0,85;-1,23;-0,46;random;pooled
+0,7;-0,84;-1,22;-0,45;random;pooled
+0,8;-0,83;-1,21;-0,44;random;pooled
+0,9;-0,82;-1,2;-0,43;random;pooled
+0,99;-0,81;-1,19;-0,43;random;pooled
+-0,99;-0,76;-0,83;-0,68;fixed;after 2015
+-0,9;-0,74;-0,82;-0,67;fixed;after 2015
+-0,8;-0,73;-0,8;-0,66;fixed;after 2015
+-0,7;-0,72;-0,79;-0,65;fixed;after 2015
+-0,6;-0,71;-0,78;-0,64;fixed;after 2015
+-0,5;-0,7;-0,77;-0,63;fixed;after 2015
+-0,4;-0,69;-0,75;-0,62;fixed;after 2015
+-0,3;-0,68;-0,74;-0,61;fixed;after 2015
+-0,2;-0,66;-0,73;-0,6;fixed;after 2015
+-0,1;-0,65;-0,71;-0,59;fixed;after 2015
+0;-0,64;-0,7;-0,58;fixed;after 2015
+0,1;-0,63;-0,68;-0,57;fixed;after 2015
+0,2;-0,62;-0,67;-0,56;fixed;after 2015
+0,3;-0,6;-0,65;-0,55;fixed;after 2015
+0,4;-0,59;-0,64;-0,54;fixed;after 2015
+0,5;-0,57;-0,62;-0,53;fixed;after 2015
+0,6;-0,56;-0,6;-0,52;fixed;after 2015
+0,7;-0,54;-0,58;-0,5;fixed;after 2015
+0,8;-0,52;-0,55;-0,48;fixed;after 2015
+0,9;-0,48;-0,51;-0,45;fixed;after 2015
+0,99;-0,37;-0,39;-0,36;fixed;after 2015
+-0,99;-1,01;-1,62;-0,4;random;after 2015
+-0,9;-0,99;-1,6;-0,39;random;after 2015
+-0,8;-0,98;-1,58;-0,39;random;after 2015
+-0,7;-0,97;-1,56;-0,38;random;after 2015
+-0,6;-0,96;-1,54;-0,38;random;after 2015
+-0,5;-0,94;-1,52;-0,37;random;after 2015
+-0,4;-0,93;-1,5;-0,37;random;after 2015
+-0,3;-0,92;-1,48;-0,36;random;after 2015
+-0,2;-0,91;-1,47;-0,35;random;after 2015
+-0,1;-0,9;-1,45;-0,35;random;after 2015
+0;-0,89;-1,44;-0,34;random;after 2015
+0,1;-0,88;-1,43;-0,34;random;after 2015
+0,2;-0,87;-1,42;-0,33;random;after 2015
+0,3;-0,86;-1,41;-0,32;random;after 2015
+0,4;-0,86;-1,4;-0,32;random;after 2015
+0,5;-0,85;-1,39;-0,31;random;after 2015
+0,6;-0,84;-1,38;-0,3;random;after 2015
+0,7;-0,84;-1,37;-0,3;random;after 2015
+0,8;-0,83;-1,37;-0,29;random;after 2015
+0,9;-0,82;-1,36;-0,28;random;after 2015
+0,99;-0,81;-1,34;-0,29;random;after 2015
+-0,99;-1,12;-1,27;-0,97;fixed;before 2015
+-0,9;-1,11;-1,25;-0,96;fixed;before 2015
+-0,8;-1,08;-1,23;-0,94;fixed;before 2015
+-0,7;-1,06;-1,21;-0,92;fixed;before 2015
+-0,6;-1,04;-1,18;-0,91;fixed;before 2015
+-0,5;-1,02;-1,16;-0,89;fixed;before 2015
+-0,4;-1;-1,13;-0,87;fixed;before 2015
+-0,3;-0,98;-1,11;-0,85;fixed;before 2015
+-0,2;-0,96;-1,09;-0,84;fixed;before 2015
+-0,1;-0,94;-1,06;-0,82;fixed;before 2015
+0;-0,92;-1,04;-0,8;fixed;before 2015
+0,1;-0,9;-1,01;-0,79;fixed;before 2015
+0,2;-0,88;-0,99;-0,77;fixed;before 2015
+0,3;-0,86;-0,96;-0,75;fixed;before 2015
+0,4;-0,84;-0,94;-0,74;fixed;before 2015
+0,5;-0,82;-0,91;-0,72;fixed;before 2015
+0,6;-0,8;-0,89;-0,7;fixed;before 2015
+0,7;-0,77;-0,86;-0,69;fixed;before 2015
+0,8;-0,75;-0,83;-0,67;fixed;before 2015
+0,9;-0,73;-0,8;-0,65;fixed;before 2015
+0,99;-0,71;-0,77;-0,64;fixed;before 2015
+-0,99;-1,23;-1,76;-0,69;random;before 2015
+-0,9;-1,21;-1,73;-0,68;random;before 2015
+-0,8;-1,18;-1,69;-0,67;random;before 2015
+-0,7;-1,16;-1,65;-0,67;random;before 2015
+-0,6;-1,14;-1,62;-0,66;random;before 2015
+-0,5;-1,11;-1,58;-0,65;random;before 2015
+-0,4;-1,09;-1,54;-0,64;random;before 2015
+-0,3;-1,07;-1,51;-0,63;random;before 2015
+-0,2;-1,05;-1,47;-0,62;random;before 2015
+-0,1;-1,02;-1,43;-0,61;random;before 2015
+0;-1;-1,39;-0,61;random;before 2015
+0,1;-0,98;-1,36;-0,6;random;before 2015
+0,2;-0,95;-1,32;-0,59;random;before 2015
+0,3;-0,93;-1,28;-0,58;random;before 2015
+0,4;-0,91;-1,25;-0,57;random;before 2015
+0,5;-0,88;-1,21;-0,56;random;before 2015
+0,6;-0,86;-1,17;-0,55;random;before 2015
+0,7;-0,84;-1,14;-0,54;random;before 2015
+0,8;-0,81;-1,1;-0,53;random;before 2015
+0,9;-0,79;-1,06;-0,52;random;before 2015
+0,99;-0,77;-1,03;-0,51;random;before 2015
+-0,99;-0,66;-0,75;-0,56;fixed;with matching
+-0,9;-0,65;-0,74;-0,55;fixed;with matching
+-0,8;-0,63;-0,73;-0,54;fixed;with matching
+-0,7;-0,62;-0,71;-0,53;fixed;with matching
+-0,6;-0,61;-0,69;-0,52;fixed;with matching
+-0,5;-0,59;-0,68;-0,51;fixed;with matching
+-0,4;-0,58;-0,66;-0,5;fixed;with matching
+-0,3;-0,57;-0,65;-0,49;fixed;with matching
+-0,2;-0,55;-0,63;-0,47;fixed;with matching
+-0,1;-0,54;-0,62;-0,46;fixed;with matching
+0;-0,52;-0,6;-0,45;fixed;with matching
+0,1;-0,51;-0,58;-0,44;fixed;with matching
+0,2;-0,5;-0,56;-0,43;fixed;with matching
+0,3;-0,48;-0,54;-0,41;fixed;with matching
+0,4;-0,46;-0,52;-0,4;fixed;with matching
+0,5;-0,44;-0,5;-0,39;fixed;with matching
+0,6;-0,42;-0,48;-0,37;fixed;with matching
+0,7;-0,4;-0,45;-0,35;fixed;with matching
+0,8;-0,37;-0,42;-0,33;fixed;with matching
+0,9;-0,33;-0,37;-0,3;fixed;with matching
+0,99;-0,27;-0,29;-0,25;fixed;with matching
+-0,99;-0,82;-1,27;-0,38;random;with matching
+-0,9;-0,81;-1,23;-0,38;random;with matching
+-0,8;-0,79;-1,19;-0,38;random;with matching
+-0,7;-0,77;-1,15;-0,39;random;with matching
+-0,6;-0,75;-1,11;-0,39;random;with matching
+-0,5;-0,73;-1,07;-0,39;random;with matching
+-0,4;-0,72;-1,04;-0,39;random;with matching
+-0,3;-0,7;-1;-0,4;random;with matching
+-0,2;-0,68;-0,96;-0,4;random;with matching
+-0,1;-0,66;-0,93;-0,4;random;with matching
+0;-0,64;-0,89;-0,4;random;with matching
+0,1;-0,63;-0,86;-0,4;random;with matching
+0,2;-0,61;-0,83;-0,4;random;with matching
+0,3;-0,59;-0,8;-0,39;random;with matching
+0,4;-0,58;-0,77;-0,39;random;with matching
+0,5;-0,56;-0,74;-0,39;random;with matching
+0,6;-0,55;-0,71;-0,38;random;with matching
+0,7;-0,53;-0,69;-0,38;random;with matching
+0,8;-0,52;-0,66;-0,37;random;with matching
+0,9;-0,5;-0,64;-0,36;random;with matching
+0,99;-0,49;-0,62;-0,35;random;with matching
+-0,99;-0,98;-1,07;-0,89;fixed;without matching
+-0,9;-0,97;-1,06;-0,88;fixed;without matching
+-0,8;-0,96;-1,05;-0,87;fixed;without matching
+-0,7;-0,94;-1,03;-0,86;fixed;without matching
+-0,6;-0,93;-1,01;-0,84;fixed;without matching
+-0,5;-0,92;-1;-0,83;fixed;without matching
+-0,4;-0,9;-0,98;-0,82;fixed;without matching
+-0,3;-0,89;-0,97;-0,81;fixed;without matching
+-0,2;-0,88;-0,95;-0,8;fixed;without matching
+-0,1;-0,86;-0,93;-0,79;fixed;without matching
+0;-0,85;-0,92;-0,78;fixed;without matching
+0,1;-0,83;-0,9;-0,77;fixed;without matching
+0,2;-0,82;-0,89;-0,76;fixed;without matching
+0,3;-0,81;-0,87;-0,74;fixed;without matching
+0,4;-0,79;-0,85;-0,73;fixed;without matching
+0,5;-0,78;-0,84;-0,73;fixed;without matching
+0,6;-0,77;-0,82;-0,72;fixed;without matching
+0,7;-0,76;-0,81;-0,71;fixed;without matching
+0,8;-0,76;-0,8;-0,71;fixed;without matching
+0,9;-0,77;-0,82;-0,73;fixed;without matching
+0,99;-0,95;-0,99;-0,91;fixed;without matching
+-0,99;-1,28;-2,04;-0,53;random;without matching
+-0,9;-1,27;-2,02;-0,52;random;without matching
+-0,8;-1,26;-2;-0,52;random;without matching
+-0,7;-1,24;-1,97;-0,51;random;without matching
+-0,6;-1,23;-1,95;-0,5;random;without matching
+-0,5;-1,21;-1,93;-0,49;random;without matching
+-0,4;-1,2;-1,91;-0,48;random;without matching
+-0,3;-1,19;-1,89;-0,48;random;without matching
+-0,2;-1,17;-1,88;-0,47;random;without matching
+-0,1;-1,16;-1,86;-0,46;random;without matching
+0;-1,15;-1,84;-0,45;random;without matching
+0,1;-1,14;-1,82;-0,45;random;without matching
+0,2;-1,12;-1,81;-0,44;random;without matching
+0,3;-1,11;-1,79;-0,43;random;without matching
+0,4;-1,1;-1,78;-0,42;random;without matching
+0,5;-1,09;-1,77;-0,41;random;without matching
+0,6;-1,08;-1,75;-0,41;random;without matching
+0,7;-1,07;-1,74;-0,4;random;without matching
+0,8;-1,06;-1,73;-0,39;random;without matching
+0,9;-1,05;-1,71;-0,39;random;without matching
+0,99;-1,04;-1,69;-0,39;random;without matching
+-0,99;-0,77;-0,86;-0,68;fixed;single center
+-0,9;-0,76;-0,85;-0,67;fixed;single center
+-0,8;-0,75;-0,84;-0,66;fixed;single center
+-0,7;-0,73;-0,82;-0,65;fixed;single center
+-0,6;-0,72;-0,81;-0,64;fixed;single center
+-0,5;-0,71;-0,8;-0,63;fixed;single center
+-0,4;-0,7;-0,78;-0,62;fixed;single center
+-0,3;-0,69;-0,77;-0,61;fixed;single center
+-0,2;-0,68;-0,75;-0,6;fixed;single center
+-0,1;-0,66;-0,74;-0,59;fixed;single center
+0;-0,65;-0,73;-0,58;fixed;single center
+0,1;-0,64;-0,71;-0,57;fixed;single center
+0,2;-0,63;-0,7;-0,56;fixed;single center
+0,3;-0,62;-0,68;-0,55;fixed;single center
+0,4;-0,61;-0,67;-0,54;fixed;single center
+0,5;-0,6;-0,66;-0,54;fixed;single center
+0,6;-0,59;-0,65;-0,53;fixed;single center
+0,7;-0,59;-0,64;-0,53;fixed;single center
+0,8;-0,59;-0,64;-0,54;fixed;single center
+0,9;-0,63;-0,67;-0,58;fixed;single center
+0,99;-0,88;-0,92;-0,84;fixed;single center
+-0,99;-1,13;-1,72;-0,53;random;single center
+-0,9;-1,11;-1,7;-0,53;random;single center
+-0,8;-1,1;-1,68;-0,52;random;single center
+-0,7;-1,08;-1,65;-0,51;random;single center
+-0,6;-1,07;-1,63;-0,51;random;single center
+-0,5;-1,05;-1,61;-0,5;random;single center
+-0,4;-1,04;-1,59;-0,49;random;single center
+-0,3;-1,03;-1,57;-0,48;random;single center
+-0,2;-1,01;-1,55;-0,47;random;single center
+-0,1;-1;-1,53;-0,47;random;single center
+0;-0,99;-1,52;-0,46;random;single center
+0,1;-0,98;-1,5;-0,45;random;single center
+0,2;-0,96;-1,48;-0,44;random;single center
+0,3;-0,95;-1,47;-0,43;random;single center
+0,4;-0,94;-1,46;-0,43;random;single center
+0,5;-0,93;-1,44;-0,42;random;single center
+0,6;-0,92;-1,43;-0,41;random;single center
+0,7;-0,91;-1,42;-0,4;random;single center
+0,8;-0,9;-1,4;-0,39;random;single center
+0,9;-0,89;-1,39;-0,39;random;single center
+0,99;-0,87;-1,36;-0,38;random;single center
+-0,99;-0,88;-0,98;-0,76;fixed;multicenter
+-0,9;-0,87;-0,96;-0,78;fixed;multicenter
+-0,8;-0,86;-0,95;-0,77;fixed;multicenter
+-0,7;-0,84;-0,93;-0,75;fixed;multicenter
+-0,6;-0,83;-0,91;-0,74;fixed;multicenter
+-0,5;-0,81;-0,9;-0,73;fixed;multicenter
+-0,4;-0,8;-0,88;-0,71;fixed;multicenter
+-0,3;-0,78;-0,86;-0,7;fixed;multicenter
+-0,2;-0,76;-0,84;-0,69;fixed;multicenter
+-0,1;-0,75;-0,82;-0,68;fixed;multicenter
+0;-0,73;-0,8;-0,66;fixed;multicenter
+0,1;-0,71;-0,78;-0,65;fixed;multicenter
+0,2;-0,7;-0,76;-0,63;fixed;multicenter
+0,3;-0,68;-0,74;-0,61;fixed;multicenter
+0,4;-0,66;-0,71;-0,6;fixed;multicenter
+0,5;-0,63;-0,69;-0,58;fixed;multicenter
+0,6;-0,61;-0,66;-0,56;fixed;multicenter
+0,7;-0,57;-0,62;-0,53;fixed;multicenter
+0,8;-0,53;-0,57;-0,49;fixed;multicenter
+0,9;-0,46;-0,49;-0,43;fixed;multicenter
+0,99;-0,31;-0,33;-0,29;fixed;multicenter
+-0,99;-0,97;-1,63;-0,31;random;multicenter
+-0,9;-0,95;-1,6;-0,3;random;multicenter
+-0,8;-0,93;-1,56;-0,3;random;multicenter
+-0,7;-0,92;-1,53;-0,3;random;multicenter
+-0,6;-0,9;-1,5;-0,3;random;multicenter
+-0,5;-0,88;-1,47;-0,3;random;multicenter
+-0,4;-0,86;-1,43;-0,3;random;multicenter
+-0,3;-0,85;-1,4;-0,29;random;multicenter
+-0,2;-0,83;-1,37;-0,29;random;multicenter
+-0,1;-0,81;-1,33;-0,29;random;multicenter
+0;-0,79;-1,3;-0,29;random;multicenter
+0,1;-0,78;-1,27;-0,28;random;multicenter
+0,2;-0,76;-1,24;-0,28;random;multicenter
+0,3;-0,74;-1,21;-0,28;random;multicenter
+0,4;-0,73;-1,17;-0,28;random;multicenter
+0,5;-0,71;-1,14;-0,27;random;multicenter
+0,6;-0,69;-1,11;-0,27;random;multicenter
+0,7;-0,67;-1,08;-0,27;random;multicenter
+0,8;-0,66;-1,05;-0,26;random;multicenter
+0,9;-0,64;-1,02;-0,26;random;multicenter
+0,99;-0,62;-0,99;-0,26;random;multicenter
