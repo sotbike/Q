@@ -12,4 +12,4 @@ meta-analysis: R code is included for the implementation of fixed and random eff
 
 meta-regression analysis: R code is included for the implementation of fixed and random effects models; subgroups: studies published before & after 2015, studies with & without patient matching, single- / multicenter studies, moderators: year of publication, number of quality stars from the Newcastle - Ottawa Scale
 
-instructions for results replication: fisrtly place the data file on desktop, then configure the path to the file through the "read.csv" command, finally run the code 
+instructions for the replication of results: fisrtly place the data file on desktop, then configure the path to the file through the "read.csv" command, finally run the code 
