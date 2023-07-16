@@ -1,0 +1,764 @@
+############################################ "COUNTRIES" DATASET ###################################################
+
+
+# At the level of studies
+# Calculate the percentage of each country's studies
+country_percentages_studlev <- round(prop.table(table(dset$country)) * 100, 2)
+
+# Sort the percentages in decreasing order
+sorted_percentages_studlev <- sort(country_percentages_studlev, decreasing = TRUE)
+
+# Calculate the difference from 100
+diff <- sum(sorted_percentages_studlev) - 100
+
+# We adjust the minimum unique value
+index <- (which.min(unique(sorted_percentages_studlev)))
+sorted_percentages_studlev[index] <- sorted_percentages_studlev[index] - diff
+verification_sum <- sum(sorted_percentages_studlev)
+
+# At the level of patients
+# Calculate the total population for each country
+country_population <- tapply(dset$population, dset$country, sum)
+
+# Calculate the total population across all countries
+total_population <- sum(country_population)
+
+# Calculate the percentage of each country's population
+country_percentages_ptlev <- round((country_population / total_population) * 100, 2)
+
+# Sort the percentages in decreasing order
+sorted_percentages_ptlev <- sort(country_percentages_ptlev, decreasing = TRUE)
+
+# Calculate the difference from 100
+diff <- sum(sorted_percentages_ptlev) - 100
+
+# We adjust the minimum unique value
+index <- (which.min(unique(sorted_percentages_ptlev)))
+sorted_percentages_ptlev[index] <- sorted_percentages_ptlev[index] - diff
+verification_sum <- sum(sorted_percentages_ptlev)
+
+country_names <- append(names(sorted_percentages_studlev), names(sorted_percentages_ptlev))
+percentages <- append(sorted_percentages_studlev, sorted_percentages_ptlev)
+levels <- c(rep("studies", length(sorted_percentages_studlev)), rep("patients", length(sorted_percentages_ptlev)))
+
+# Create the data.frame "countries"
+countries <- data.frame(level = levels, country = country_names, percentage = percentages, stringsAsFactors = FALSE)
+
+
+####################################### SAVE THE "COUNTRIES" DATASET ###############################################
+
+# We create a new folder named "Excel" on desktop 
+folder_name <- "Excel"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Export the dataset as an MS Excel file
+install.packages("openxlsx")
+library(openxlsx)
+
+# Specify the file path for the Excel file
+file_path <- "C:/Users/sotbi/Desktop/Excel/COUNTRIES.xlsx"
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the dataset to the workbook
+addWorksheet(wb, "Sheet1")
+writeData(wb, "Sheet1", countries)
+
+# Save the workbook as an Excel file
+saveWorkbook(wb, file_path)
+
+# Print a confirmation message
+cat("Data exported successfully to", file_path)
+
+
+############################################# "SDEMO" DATASET #####################################################
+
+# For studies published after or before 2018
+# Study level
+count_post_2018 <- sum(dset$post_2018 == 1)
+count_pre_2018 <- sum(dset$post_2018 == 0)
+percentage_post_2018_studlev <- round((count_post_2018 / nrow(dset)) * 100, 2)
+percentage_pre_2018_studlev <- round((count_pre_2018 / nrow(dset)) * 100, 2)
+diff <- percentage_post_2018_studlev + percentage_pre_2018_studlev - 100
+if (percentage_post_2018_studlev < percentage_pre_2018_studlev) {
+  percentage_post_2018_studlev <- percentage_post_2018_studlev - diff
+} else {
+  percentage_pre_2018_studlev <- percentage_pre_2018_studlev - diff
+}
+
+# Patient level
+subset_post_2018 <- subset(dset, post_2018 == 1)
+subset_pre_2018 <- subset(dset, post_2018 == 0)
+population_post_2018 <- sum(subset_post_2018$population)
+population_pre_2018 <- sum(subset_pre_2018$population)
+percentage_post_2018_ptlev <- round((population_post_2018 / sum(dset$population)) * 100, 2)
+percentage_pre_2018_ptlev <- round((population_pre_2018 / sum(dset$population)) * 100, 2)
+diff <- percentage_post_2018_ptlev + percentage_pre_2018_ptlev - 100
+if (percentage_post_2018_ptlev < percentage_pre_2018_ptlev) {
+  percentage_post_2018_ptlev <- percentage_post_2018_ptlev - diff
+} else {
+  percentage_pre_2018_ptlev <- percentage_pre_2018_ptlev - diff
+}
+
+# Both levels (studies - patients)
+n_post_2018 <- c(count_post_2018, population_post_2018)
+p_post_2018 <- c(percentage_post_2018_studlev, percentage_post_2018_ptlev)
+n_pre_2018 <- c(count_pre_2018, population_pre_2018)
+p_pre_2018 <- c(percentage_pre_2018_studlev, percentage_pre_2018_ptlev)
+
+
+# For studies with or without patient matching
+# Study level
+count_matching <- sum(dset$matched == 1)
+count_no_matching <- sum(dset$matched == 0)
+percentage_matching_studlev <- round((count_matching / nrow(dset)) * 100, 2)
+percentage_no_matching_studlev <- round((count_no_matching / nrow(dset)) * 100, 2)
+diff <- percentage_matching_studlev + percentage_no_matching_studlev - 100
+if (percentage_matching_studlev < percentage_no_matching_studlev) {
+  percentage_matching_studlev <- percentage_matching_studlev - diff
+} else {
+  percentage_no_matching_studlev <- percentage_no_matching_studlev - diff
+}
+
+# Patient level
+subset_matching <- subset(dset, matched == 1)
+subset_no_matching <- subset(dset, matched == 0)
+population_matching <- sum(subset_matching$population)
+population_no_matching <- sum(subset_no_matching$population)
+percentage_matching_ptlev <- round((population_matching / sum(dset$population)) * 100, 2)
+percentage_no_matching_ptlev <- round((population_no_matching / sum(dset$population)) * 100, 2)
+diff <- percentage_matching_ptlev + percentage_no_matching_ptlev - 100
+if (percentage_matching_ptlev < percentage_no_matching_ptlev) {
+  percentage_matching_ptlev <- percentage_matching_ptlev - diff
+} else {
+  percentage_no_matching_ptlev <- percentage_no_matching_ptlev - diff
+}
+
+# Both levels (studies - patients)
+n_matching <- c(count_matching, population_matching)
+p_matching <- c(percentage_matching_studlev, percentage_matching_ptlev)
+n_no_matching <- c(count_no_matching, population_no_matching)
+p_no_matching <- c(percentage_no_matching_studlev, percentage_no_matching_ptlev)
+
+
+# For multi- or single-center studies
+# Study level
+count_multi <- sum(dset$center == "multi")
+count_single <- sum(dset$center == "single")
+percentage_multi_studlev <- round((count_multi / nrow(dset)) * 100, 2)
+percentage_single_studlev <- round((count_single / nrow(dset)) * 100, 2)
+diff <- percentage_multi_studlev + percentage_single_studlev - 100
+if (percentage_multi_studlev < percentage_single_studlev) {
+  percentage_multi_studlev <- percentage_multi_studlev - diff
+} else {
+  percentage_single_studlev <- percentage_single_studlev - diff
+}
+
+# Patient level
+subset_multi <- subset(dset, center == "multi")
+subset_single <- subset(dset, center == "single")
+population_multi <- sum(subset_multi$population)
+population_single <- sum(subset_single$population)
+percentage_multi_ptlev <- round((population_multi / sum(dset$population)) * 100, 2)
+percentage_single_ptlev <- round((population_single / sum(dset$population)) * 100, 2)
+diff <- percentage_multi_ptlev + percentage_single_ptlev - 100
+if (percentage_multi_ptlev < percentage_single_ptlev) {
+  percentage_multi_ptlev <- percentage_multi_ptlev - diff
+} else {
+  percentage_single_ptlev <- percentage_single_ptlev - diff
+}
+
+# Both levels (studies - patients)
+n_multi <- c(count_multi, population_multi)
+p_multi <- c(percentage_multi_studlev, percentage_multi_ptlev)
+n_single <- c(count_single, population_single)
+p_single <- c(percentage_single_studlev, percentage_single_ptlev)
+
+
+# For studies with ROBINS-I: Low - Moderate - Serious 
+# Study level
+count_low <- sum(dset$robins == "Low")
+count_moderate <- sum(dset$robins == "Moderate")
+count_serious <- sum(dset$robins == "Serious")
+percentage_low_studlev <- round((count_low / nrow(dset)) * 100, 2)
+percentage_moderate_studlev <- round((count_moderate / nrow(dset)) * 100, 2)
+percentage_serious_studlev <- round((count_serious / nrow(dset)) * 100, 2)
+diff <- percentage_low_studlev + percentage_moderate_studlev + percentage_serious_studlev - 100
+if (percentage_low_studlev < percentage_moderate_studlev & percentage_low_studlev < percentage_serious_studlev) {
+  percentage_low_studlev <- percentage_low_studlev - diff
+} else {
+  if (percentage_moderate_studlev < percentage_low_studlev & percentage_moderate_studlev < percentage_serious_studlev) {
+    percentage_moderate_studlev <- percentage_moderate_studlev - diff
+  } else {
+    if (percentage_serious_studlev < percentage_low_studlev & percentage_serious_studlev < percentage_moderate_studlev) {
+      percentage_serious_studlev <- percentage_serious_studlev - diff
+    }
+  }
+}
+
+# Patient level
+subset_low <- subset(dset, robins == "Low")
+subset_moderate <- subset(dset, robins == "Moderate")
+subset_serious <- subset(dset, robins == "Serious")
+population_low <- sum(subset_low$population)
+population_moderate <- sum(subset_moderate$population)
+population_serious <- sum(subset_serious$population)
+percentage_low_ptlev <- round((population_low / sum(dset$population)) * 100, 2)
+percentage_moderate_ptlev <- round((population_moderate / sum(dset$population)) * 100, 2)
+percentage_serious_ptlev <- round((population_serious / sum(dset$population)) * 100, 2)
+diff <- percentage_low_ptlev + percentage_moderate_ptlev + percentage_serious_ptlev - 100
+if (percentage_low_ptlev < percentage_moderate_ptlev & percentage_low_ptlev < percentage_serious_ptlev) {
+  percentage_low_ptlev <- percentage_low_ptlev - diff
+} else {
+  if (percentage_moderate_ptlev < percentage_low_ptlev & percentage_moderate_ptlev < percentage_serious_ptlev) {
+    percentage_moderate_ptlev <- percentage_moderate_ptlev - diff
+  } else {
+    if (percentage_serious_ptlev < percentage_low_ptlev & percentage_serious_ptlev < percentage_moderate_ptlev) {
+      percentage_serious_ptlev <- percentage_serious_ptlev - diff
+    }
+  }
+}
+
+# Both levels (studies - patients)
+n_low <- c(count_low, population_low)
+p_low <- c(percentage_low_studlev, percentage_low_ptlev)
+n_moderate <- c(count_moderate, population_moderate)
+p_moderate <- c(percentage_moderate_studlev, percentage_moderate_ptlev)
+n_serious <- c(count_serious, population_serious)
+p_serious <- c(percentage_serious_studlev, percentage_serious_ptlev)
+
+
+# For studies with RPN - RAPN - COST
+# Study level
+count_rpn <- sum(dset$method == "RPN")
+count_rapn <- sum(dset$method == "RAPN")
+count_cost <- sum(dset$method == "COST")
+percentage_rpn_studlev <- round((count_rpn / nrow(dset)) * 100, 2)
+percentage_rapn_studlev <- round((count_rapn / nrow(dset)) * 100, 2)
+percentage_cost_studlev <- round((count_cost / nrow(dset)) * 100, 2)
+diff <- percentage_rpn_studlev + percentage_rapn_studlev + percentage_cost_studlev - 100
+if (percentage_rpn_studlev < percentage_rapn_studlev & percentage_rpn_studlev < percentage_cost_studlev) {
+  percentage_rpn_studlev <- percentage_rpn_studlev - diff
+} else {
+  if (percentage_rapn_studlev < percentage_rpn_studlev & percentage_rapn_studlev < percentage_cost_studlev) {
+    percentage_rapn_studlev <- percentage_rapn_studlev - diff
+  } else {
+    if (percentage_cost_studlev < percentage_rpn_studlev & percentage_cost_studlev < percentage_rapn_studlev) {
+      percentage_cost_studlev <- percentage_cost_studlev - diff
+    }
+  }
+}
+
+# Patient level
+subset_rpn <- subset(dset, method == "RPN")
+subset_rapn <- subset(dset, method == "RAPN")
+subset_cost <- subset(dset, method == "COST")
+population_rpn <- sum(subset_rpn$population)
+population_rapn <- sum(subset_rapn$population)
+population_cost <- sum(subset_cost$population)
+percentage_rpn_ptlev <- round((population_rpn / sum(dset$population)) * 100, 2)
+percentage_rapn_ptlev <- round((population_rapn / sum(dset$population)) * 100, 2)
+percentage_cost_ptlev <- round((population_cost / sum(dset$population)) * 100, 2)
+diff <- percentage_rpn_ptlev + percentage_rapn_ptlev + percentage_cost_ptlev - 100
+if (percentage_rpn_ptlev < percentage_rapn_ptlev & percentage_rpn_ptlev < percentage_cost_ptlev) {
+  percentage_rpn_ptlev <- percentage_rpn_ptlev - diff
+} else {
+  if (percentage_rapn_ptlev < percentage_rpn_ptlev & percentage_rapn_ptlev < percentage_cost_ptlev) {
+    percentage_rapn_ptlev <- percentage_rapn_ptlev - diff
+  } else {
+    if (percentage_cost_ptlev < percentage_rpn_ptlev & percentage_cost_ptlev < percentage_rapn_ptlev) {
+      percentage_cost_ptlev <- percentage_cost_ptlev - diff
+    }
+  }
+}
+
+# Both levels (studies - patients)
+n_rpn <- c(count_rpn, population_rpn)
+p_rpn <- c(percentage_rpn_studlev, percentage_rpn_ptlev)
+n_rapn <- c(count_rapn, population_rapn)
+p_rapn <- c(percentage_rapn_studlev, percentage_rapn_ptlev)
+n_cost <- c(count_cost, population_cost)
+p_cost <- c(percentage_cost_studlev, percentage_cost_ptlev)
+
+
+# Create the data.frame "sdemo"
+levels <- c("studies", "patients")
+total <- c(nrow(dset), sum(dset$population))
+sdemo <- data.frame(level = levels, 
+                    n_post_2018 = n_post_2018, p_post_2018 = p_post_2018, 
+                    n_pre_2018 = n_pre_2018, p_pre_2018 = p_pre_2018,
+                    n_matching = n_matching, p_matching = p_matching, 
+                    n_no_matching = n_no_matching, p_no_matching = p_no_matching,
+                    n_multi = n_multi, p_multi = p_multi, 
+                    n_single = n_single, p_single = p_single,
+                    n_low = n_low, p_low = p_low, 
+                    n_moderate = n_moderate, p_moderate = p_moderate,
+                    n_serious = n_serious, p_serious = p_serious,
+                    n_rpn = n_rpn, p_rpn = p_rpn, 
+                    n_rapn = n_rapn, p_rapn = p_rapn,
+                    n_cost = n_cost, p_cost = p_cost, 
+                    total = total, stringsAsFactors = FALSE)
+                                        
+
+######################################### SAVE THE "SDEMO" DATASET ###############################################
+
+# Specify the file path for the Excel file
+file_path <- "C:/Users/sotbi/Desktop/Excel/SDEMO.xlsx"
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the dataset to the workbook
+addWorksheet(wb, "Sheet1")
+writeData(wb, "Sheet1", sdemo)
+
+# Save the workbook as an Excel file
+saveWorkbook(wb, file_path)
+
+# Print a confirmation message
+cat("Data exported successfully to", file_path)
+
+
+############################################### FOLDER FOR PLOTS ###################################################
+
+# We create a new folder named "Plots_D" on desktop 
+folder_name <- "Plots_D"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Then we set the working directory to the newly created folder 
+# This is where the plots are to be saved with unique titles
+setwd("C:/Users/sotbi/Desktop/Plots_D")
+
+
+############################################# STUDY PERIODS  #####################################################
+
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("scales")
+library(scales)
+install.packages("lubridate")
+library(lubridate)
+
+
+# Reverse the order of rows in the dataset
+dset <- dset[rev(seq_len(nrow(dset))), ]
+
+# Convert start and end columns to POSIXct format
+dset$start <- as.POSIXct(dset$start, format = "%d/%m/%Y")
+dset$end <- as.POSIXct(dset$end, format = "%d/%m/%Y")
+
+# Calculate the range of dates for the x-axis with additional padding
+x_min <- min(dset$start) - years(1)
+x_max <- max(dset$end) + years(1)
+
+# To capture the size of the plots that will be produced we adjust the width & height parameters from here
+# Time frame plots parameters
+W_tf <- 1200
+H_tf <- 1000
+
+# Add a row index column to the dataset
+dset$row_index <- seq_len(nrow(dset))
+
+# Create a plot of study periods by patient matching
+png("1. Time periods of studies by patient matching.png", width = W_tf, height = H_tf)
+plot <- ggplot(dset) +
+  geom_segment(
+    aes(x = start, xend = end, y = row_index, yend = row_index),
+    linewidth = 2, color = ifelse(dset$matched == 1, "orangered3", "steelblue"),
+    lineend = "round"
+  ) +
+  scale_x_datetime(
+    labels = scales::date_format("%d/%m/%Y"), expand = c(0.02, 0.02),
+    breaks = scales::date_breaks("5 years"), limits = c(x_min, x_max)
+  ) +
+  scale_y_continuous(breaks = dset$row_index, labels = dset$study) +
+  labs(x = "", y = "", title = "Time periods of studies by patient matching") +
+  theme_minimal() +
+  theme(
+    plot.margin = margin(20, 10, 10, 10),
+    panel.grid.major.x = element_line(color = "lightgray", linewidth = 0.25, linetype = 2),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    legend.justification = c(0, 0),
+    legend.position = c(0, 0),
+    legend.box.spacing = unit(0.5, "lines"),
+    legend.text = element_text(size = 8),
+    axis.text = element_text(size = 13)
+  ) +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 3, size = 20)) +
+  annotate(
+    "text", x = x_min, y = 0, label = "Patient matching",
+    hjust = 0.16, vjust = 1, color = "orangered3", size = 5
+  ) +
+  annotate(
+    "text", x = x_min, y = -1, label = "No patient matching",
+    hjust = 0.16, vjust = 1.5, color = "steelblue", size = 5
+  ) 
+print(plot)
+dev.off()
+
+
+# Create a plot of study periods by center
+png("2. Time periods of studies by center.png", width = W_tf, height = H_tf)
+plot <- ggplot(dset) +
+  geom_segment(
+    aes(x = start, xend = end, y = row_index, yend = row_index),
+    linewidth = 2, color = ifelse(dset$center == "multi", "salmon", "darkolivegreen4"),
+    lineend = "round"
+  ) +
+  scale_x_datetime(
+    labels = scales::date_format("%d/%m/%Y"), expand = c(0.02, 0.02),
+    breaks = scales::date_breaks("5 years"), limits = c(x_min, x_max)
+  ) +
+  scale_y_continuous(breaks = dset$row_index, labels = dset$study) +
+  labs(x = "", y = "", title = "Time periods of multi- / single-center studies") +
+  theme_minimal() +
+  theme(
+    plot.margin = margin(20, 10, 10, 10),
+    panel.grid.major.x = element_line(color = "lightgray", linewidth = 0.25, linetype = 2),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    legend.justification = c(0, 0),
+    legend.position = c(0, 0),
+    legend.box.spacing = unit(0.5, "lines"),
+    legend.text = element_text(size = 8),
+    axis.text = element_text(size = 13)
+  ) +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 3, size = 20)) +
+  annotate(
+    "text", x = x_min, y = 0, label = "Multicenter",
+    hjust = 0.0, vjust = 1, color = "salmon", size = 5
+  ) +
+  annotate(
+    "text", x = x_min, y = -1, label = "Single-center",
+    hjust = 0.0, vjust = 1.5, color = "darkolivegreen4", size = 5
+  ) 
+print(plot)
+dev.off()
+
+# Create a plot of study periods by ROBINS-I: Low - Moderate - High
+png("3. Time periods of studies by RONINS-I class.png", width = W_tf, height = H_tf)
+plot <- ggplot(dset) +
+  geom_segment(
+    aes(x = start, xend = end, y = row_index, yend = row_index),
+    linewidth = 2, color = ifelse(dset$robins == "Low", "palegreen4", ifelse(dset$robins == "Moderate", "rosybrown4", "tomato")),
+    lineend = "round"
+  ) +
+  scale_x_datetime(
+    labels = scales::date_format("%d/%m/%Y"), expand = c(0.02, 0.02),
+    breaks = scales::date_breaks("5 years"), limits = c(x_min, x_max)
+  ) +
+  scale_y_continuous(breaks = dset$row_index, labels = dset$study) +
+  labs(x = "", y = "", title = "Time periods of studies by RONINS-I class") +
+  theme_minimal() +
+  theme(
+    plot.margin = margin(20, 10, 10, 10),
+    panel.grid.major.x = element_line(color = "lightgray", linewidth = 0.25, linetype = 2),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    legend.justification = c(0, 0),
+    legend.position = c(0, 0),
+    legend.box.spacing = unit(0.5, "lines"),
+    legend.text = element_text(size = 8),
+    axis.text = element_text(size = 13)
+  ) +
+  theme(plot.title = element_text(hjust = 0.5, vjust = 3, size = 20)) +
+  annotate(
+    "text", x = x_min, y = 0, label = "Low",
+    hjust = -0.35, vjust = 0.5, color = "palegreen4", size = 5
+  ) +
+  annotate(
+    "text", x = x_min, y = -1, label = "Moderate",
+    hjust = -0.15, vjust = 1, color = "rosybrown4", size = 5
+  ) +
+  annotate(
+    "text", x = x_min, y = -1, label = "Serious",
+    hjust = -0.15, vjust = 2.5, color = "tomato", size = 5
+  )
+print(plot)
+dev.off()
+
+
+########################################### PACKAGES & LIBRARIES ##################################################
+
+# Package installation and library loading
+install.packages("RColorBrewer")
+install.packages("rworldmap")
+install.packages("plot3D")
+install.packages("plotrix")
+
+library(RColorBrewer)
+library(rworldmap)
+library(plot3D)
+library(plotrix)
+
+############################################### NEW DATASETS ##########################################################
+
+# Note that the datasets produced above were first saved as MS Excel files
+# Then inspected, converted to csv files & finally transferred to the desktop folder named "Data"
+
+# Now we import the required datasets
+COUNTRIES<-read.csv("C:/Users/sotbi/Desktop/Data/COUNTRIES.csv", sep=";", header=TRUE)
+SDEMO<-read.csv("C:/Users/sotbi/Desktop/Data/SDEMO.csv", sep=";", header=TRUE)
+
+# Then we inspect the datasets
+head(COUNTRIES)
+head(SDEMO)
+
+# Now we define the dataset of interest
+dset<-COUNTRIES
+
+
+############################################# COUNTRY OF ORIGIN ########################################################
+
+# To capture the size of the plots that will be produced we adjust the width & height parameters from here
+# Map charts parameters
+W_map <- 1100
+H_map <- 1000
+# Pooled analysis pie charts parameters
+W_pie_pool <- 800
+H_pie_pool <- 900
+
+# First we will create map charts showing the percentage distribution of studies & patients according to their country 
+png("4. Percentage distribution at the level of studies & patients by country.png", width = W_map, height = H_map)
+par(mfrow = c(2, 1))
+# At the level of studies
+mapdata <- dset[dset$level=="studies",]
+mapdata$percentage<-as.factor(mapdata$percentage)
+levels(mapdata$percentage) <- paste0(levels(mapdata$percentage), "%")
+colnames(mapdata)[colnames(mapdata)=="percentage"]<-"Percentage distribution at the level of studies by country"
+worldmapcountries<-joinCountryData2Map(mapdata,nameJoinColumn = "country",joinCode = "NAME")
+color_palette<-RColorBrewer::brewer.pal(8,"Reds")
+par(mai=c(0.3,0.3,0.8,0),xaxs="i",yaxs="i")
+mapCountryData(worldmapcountries,nameColumnToPlot = "Percentage distribution at the level of studies by country",catMethod = "fixedwidth", oceanCol="lightblue", colourPalette = color_palette, missingCountryCol="white", numCats = 8, mapTitle = " ", addLegend=FALSE)
+legendTitle <- "Contribution"
+legendLabels <- levels(mapdata$"Percentage distribution at the level of studies by country")
+legendColors <- color_palette[1:length(legendLabels)]
+legend(x = "bottomleft", legend = legendLabels, fill = legendColors, title = legendTitle, bg = "white", cex = 1.5, inset = c(0, 0))
+title(main = "Percentage distribution at the level of studies by country", cex.main = 1.5, line = 1) 
+# At the level of patients
+mapdata <- dset[dset$level=="patients",]
+mapdata$percentage<-as.factor(mapdata$percentage)
+levels(mapdata$percentage) <- paste0(levels(mapdata$percentage), "%")
+colnames(mapdata)[colnames(mapdata)=="percentage"]<-"Percentage distribution at the level of patients by country"
+worldmapcountries<-joinCountryData2Map(mapdata,nameJoinColumn = "country",joinCode = "NAME")
+# Generate a color palette with consecutive intensities similar to "Reds"
+n <- 12  # Number of colors/intensities
+base_palette <- brewer.pal(9, "Reds")  # Original 9 colors from Reds
+color_palette <- colorRampPalette(base_palette)(n) # Now we have 12 colors from Reds
+par(mai=c(0.3,0.3,0.8,0),xaxs="i",yaxs="i")
+mapCountryData(worldmapcountries,nameColumnToPlot = "Percentage distribution at the level of patients by country",catMethod = "fixedwidth", oceanCol="lightblue", colourPalette = color_palette, missingCountryCol="white", numCats = 12, mapTitle = " ", addLegend=FALSE)
+legendTitle <- "Contribution"
+legendLabels <- levels(mapdata$"Percentage distribution at the level of patients by country")
+legendColors <- color_palette[1:length(legendLabels)]
+legend(x = "bottomleft", legend = legendLabels, fill = legendColors, title = legendTitle, bg = "white", cex = 1.5, inset = c(0, 0))
+title(main = "Percentage distribution at the level of patients by country", cex.main = 1.5, line = 1) 
+dev.off()
+
+# Then we will proceed with constructing pie charts that provide the same information but in more detail
+png("5. Pie charts showing the percentage distribution of studies & patients by country.png", width = W_pie_pool, height = H_pie_pool)
+par(mfrow = c(2, 1))
+# Here we create a pie chart showing the percentage distribution of studies by country
+values <- dset[dset$level=="studies",]$percentage
+labels <- dset[dset$level=="studies",]$country
+countries<-labels
+percentages <- paste0(values, "%")
+# We will create a 3D pie chart with percentage labels & custom colors
+custom_colors<-c("red","blue","green","orange","purple","turquoise","violet","gold","skyblue","gray","pink","maroon","navy","salmon")
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi, labelcex = 1.2, mar = c(1, 0, 5, 8), col = custom_colors)
+title("Pie chart showing the percentage distribution of studies by country", cex.main = 1.8)
+# Increase the plotting area for the legend
+par(xpd = TRUE)
+# Calculate the position for the legend
+legend_x <- max(par("usr")[1:2]) + 0.5
+legend_y <- max(par("usr")[3:4]) - 0
+# Finally we create the legend with custom colors
+legend(legend_x,legend_y, legend = countries, fill = custom_colors, title = "Countries", cex = 1.5)
+# In case we prefer default colors
+# pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi, labelcex = 1, mar = c(0, 4, 5, 12), col = custom_colors)
+# title("Pie chart showing the percentage distribution of studies by country", cex.main = 1.8)
+# par(xpd = TRUE)
+# legend_x <- max(par("usr")[1:2]) + 0.5
+# legend_y <- max(par("usr")[3:4]) - 0.4
+# legend(legend_x,legend_y, legend = countries, fill = rainbow(length(countries)), title = "Countries", cex = 1.5)
+# For more colors try: colors()[1:657]
+# Now we will create a pie chart showing the percentage distribution of patients by country
+# We will use the same color-labels (country) pairs as before
+new_custom_colors <- custom_colors[match(dset[dset$level=="patients",]$country, dset[dset$level=="studies",]$country)]
+values <- dset[dset$level=="patients",]$percentage
+labels <- dset[dset$level=="patients",]$country
+countries<-labels
+percentages <- paste0(values, "%")
+# We will create a 3D pie chart with percentage labels & custom colors
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 1.2, mar = c(1, 0, 5, 8), col = new_custom_colors)
+title("Pie chart showing the percentage distribution of patients by country", cex.main = 1.8)
+# Increase the plotting area for the legend
+par(xpd = TRUE)
+# Calculate the position for the legend
+legend_x <- max(par("usr")[1:2]) + 0.5
+legend_y <- max(par("usr")[3:4]) - 0
+# Finally we create the legend with custom colors
+legend(legend_x,legend_y, legend = countries, fill = new_custom_colors, title = "Countries", cex = 1.5)
+dev.off()
+
+########################################## YEAR OF PUBLICATION ####################################################
+
+# We define the dataset of interest
+dset<-SDEMO
+
+# Similar plots will follow so we capture their width & height parameters
+# Subgroup analysis pie charts parameters
+W_pie_sga <- 800
+H_pie_sga <- 950
+# Margin for top pie
+mar_top <- c(2, 1, 5, 12)
+# Margin for bottom pie
+mar_bot <- c(1, 1, 7, 12)
+
+# Now we will construct pie charts showing the percentage distribution of studies & patients according to publication year
+png("6. Pie charts showing the percentages of studies & patients by publication year.png", width = W_pie_sga, height = H_pie_sga)
+par(mfrow = c(2, 1))
+# At the level of studies
+values <- c(dset[dset$level=="studies",]$p_post_2018, dset[dset$level=="studies",]$p_pre_2018)
+labels <- c("Published after 2018", "Published before 2018")
+percentages <- paste0(values, "%")
+colors <- c("maroon","skyblue") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
+title("Pie chart showing the percentages of studies by publication year", cex.main = 1.5, line = 1)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.2
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 2, 2, 2))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+# At the level of patients
+values <- c(dset[dset$level=="patients",]$p_post_2018, dset[dset$level=="patients",]$p_pre_2018)
+labels <- c("Published after 2018", "Published before 2018")
+percentages <- paste0(values, "%")
+colors <- c("maroon","skyblue") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
+title("Pie chart showing the percentages of patients by publication year", cex.main = 1.5, line = -2)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.25
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 2, 2, 2))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 1.5)
+dev.off()
+
+########################################### PATIENT MATCHING #####################################################
+
+# Now we will construct pie charts showing the percentage distribution of studies & patients according to patient matching
+png("7. Pie charts showing the percentages of studies & patients by matching.png", width = W_pie_sga, height = H_pie_sga)
+par(mfrow = c(2, 1))
+# At the level of studies
+values <- c(dset[dset$level=="studies",]$p_matching, dset[dset$level=="studies",]$p_no_matching)
+labels <- c("With patient matching", "Without patient matching")
+percentages <- paste0(values, "%")
+colors <- c("olivedrab","sandybrown") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
+title("Pie chart showing the percentages of studies by matching", cex.main = 1.5, line = 1)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.1
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(1, 6, 2, 6))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+# At the level of patients
+values <- c(dset[dset$level=="patients",]$p_matching, dset[dset$level=="patients",]$p_no_matching)
+labels <- c("With patient matching", "Without patient matching")
+percentages <- paste0(values, "%")
+colors <- c("olivedrab","sandybrown") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.2, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
+title("Pie chart showing the percentages of patients by matching", cex.main = 1.5, line = -2)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.15
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(1, 6, 2, 6))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 1.5)
+dev.off()
+
+##################################### MULTICENTER / SINGLE-CENTER #################################################
+
+# Here we construct pie charts showing the percentage distribution of studies & patients according to center
+png("8. Pie charts showing the percentages of studies & patients by center.png", width = W_pie_sga, height = H_pie_sga)
+par(mfrow = c(2, 1))
+# At the level of studies
+values <- c(dset[dset$level=="studies",]$p_multi, dset[dset$level=="studies",]$p_single)
+labels <- c("Muticenter", "Single-center")
+percentages <- paste0(values, "%")
+colors <- c("firebrick","goldenrod")
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
+title("Pie chart showing the percentages of studies by center", cex.main = 1.5, line = 1)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.3
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+# At the level of patients
+values <- c(dset[dset$level=="patients",]$p_multi, dset[dset$level=="patients",]$p_single)
+labels <- c("Muticenter studies", "Single-center studies")
+percentages <- paste0(values, "%")
+colors <- c("firebrick","goldenrod") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
+title("Pie chart showing the percentages of patients by center", cex.main = 1.5, line = -2)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.2
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in", cex = 1.5)
+dev.off()
+
+################################################## ROBINS-I ########################################################
+
+# Finally we construct pie charts showing the percentage distribution of studies & patients according to ROBINS-I class
+png("9. Pie charts showing the percentages of studies & patients by ROBINS-I class.png", width = W_pie_sga, height = H_pie_sga)
+par(mfrow = c(2, 1))
+# At the level of studies
+values <- c(dset[dset$level=="studies",]$p_low, dset[dset$level=="studies",]$p_moderate, dset[dset$level=="studies",]$p_serious)
+labels <- c("ROBINS-I: Low", "ROBINS-I: Moderate", "ROBINS-I: Serious")
+percentages <- paste0(values, "%")
+colors <- c("seagreen","tan", "salmon") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.55, labelcex = 2, mar = mar_top, col = colors, radius = 1)
+title("Pie chart showing the percentages of studies by ROBINS-I class", cex.main = 1.5, line = 1)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.25
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies with", cex = 1.5)
+# At the level of patients
+values <- c(dset[dset$level=="patients",]$p_low, dset[dset$level=="patients",]$p_moderate, dset[dset$level=="patients",]$p_serious)
+labels <- c("ROBINS-I: Low", "ROBINS-I: Moderate", "ROBINS-I: Serious")
+percentages <- paste0(values, "%")
+colors <- c("seagreen","tan", "salmon") 
+pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.55, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
+title("Pie chart showing the percentages of patients by ROBINS-I class", cex.main = 1.5, line = -2)
+par(xpd = TRUE)
+legend_x <- max(par("usr")[1:2]) + 0.3
+legend_y <- max(par("usr")[3:4]) - 1.5
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies with", cex = 1.5)
+dev.off()
+
