@@ -1,5 +1,104 @@
+################################################## DATASET #########################################################
+
+# First we import the required dataset
+STUDIES <- read.csv("C:/Users/sotbi/Desktop/Data/STUDIES.csv", sep=";", header=TRUE)
+
+# Now we define the dataset of interest
+dset <- STUDIES
+
+
+############################################## TABLE OF STUDIES ###################################################
+
+# First we modify the author names
+dset_only_name <- sub(" .*", "", dset$author)
+dset$year <-paste0("et al. ", dset$year)
+dset$names <- paste(dset_only_name, dset$year, sep = "\n")
+
+# First we modify the dset to unify matching and center
+dset$country <- paste0("(", dset$country, ")")
+dset$study_country <- paste(dset$names, dset$country, sep = "\n")
+
+# Then we modify the dset to unify matching and center
+dset$center <- ifelse(dset$center=="multi", "Multicenter", "Single-center")
+dset$matched <- ifelse(dset$matched==1, "with patient matching", "without patient matching")
+dset$method <- ifelse(dset$method=="RAPN", "RAPN vs. OPN", ifelse(dset$method=="RPN", "RPN vs. OPN", ifelse(dset$method=="COST", "Cost Analysis","")))
+dset$method <- paste0("(", dset$method, ")")
+# Now we create a new column "center_matching"
+dset$center_matching_method <- paste(dset$center, dset$matched, dset$method, sep = "\n")
+
+# Additionally we modify the dset to unify n_exp and n_ctrl
+dset$n_exp <- paste0("Nexp = ", dset$n_exp)
+dset$n_ctrl <- paste0("Nctrl = ",dset$n_ctrl)
+dset$population <- paste0 ("(Total: ", dset$population, ")")
+dset$n_exp_ctrl_tot <- paste(dset$n_exp, dset$n_ctrl, dset$population, sep = "\n")
+
+# Then  we modify the dset to summarize the study periods
+dset$periods <- paste0("(", dset$start, " - ", dset$end, ")")
+dset$duration <- paste0(dset$duration, " days")
+dset$duation_periods <- paste(dset$duration, dset$periods, sep = "\n")
+
+# Finally  we modify the dset to summarize the quality assessment
+dset$stars <- paste0("NOS: ", dset$stars)
+dset$robins <- paste0 ("ROBINS-I: ", dset$robins)
+dset$quality <- paste(dset$stars, dset$robins, sep = "\n") 
+
+
+# Now we create a data frame to export it as table of studies
+df <- data.frame(
+  Title = dset$title,
+  Author = dset$study_country,
+  Study = dset$center_matching_method,
+  Population = dset$n_exp_ctrl_tot,
+  Duration = dset$duation_periods,
+  Quality = dset$quality,
+  Baseline = rep("", nrow(dset)))
+
+
+################################################ EXPORT THE TABLE #################################################
+
+install.packages("flextable")
+library(flextable)
+install.packages("officer")
+library(officer)
+
+# We create a new folder named "Word" on desktop 
+folder_name <- "Word"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+
+# Create a flextable object
+ft <- flextable(df)
+
+# Customize the table appearance if needed
+ft <- padding(ft, padding.top = 0.5, padding.bottom = 0.5, padding.left = 0.5, padding.right = 0.5, i = 30)
+ft <- fontsize(ft, size = 10)
+
+# Create a Word document
+doc <- read_docx()
+
+# Add the flextable to the Word document
+doc <- body_add_flextable(doc, value = ft)
+
+# Save the modified document
+print(doc, target = "C:/Users/sotbi/Desktop/Word/TABLE_OF_STUDIES.docx")
+
+
 ############################################ "COUNTRIES" DATASET ###################################################
 
+# We initialize dset
+dset <- STUDIES
 
 # At the level of studies
 # Calculate the percentage of each country's studies
