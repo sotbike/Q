@@ -463,6 +463,8 @@ library(scales)
 install.packages("lubridate")
 library(lubridate)
 
+# We initialize dset once again
+dset <- STUDIES
 
 # Reverse the order of rows in the dataset
 dset <- dset[rev(seq_len(nrow(dset))), ]
