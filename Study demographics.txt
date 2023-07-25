@@ -15,8 +15,10 @@ dset$year <-paste0("et al. ", dset$year)
 dset$names <- paste(dset_only_name, dset$year, sep = "\n")
 
 # First we modify the dset to unify matching and center
+# We also add the label for citation
+dset$label <- paste0("[",dset$label,"]")
 dset$country <- paste0("(", dset$country, ")")
-dset$study_country <- paste(dset$names, dset$country, sep = "\n")
+dset$study_country <- paste(dset$names, dset$country, dset$label, sep = "\n")
 
 # Then we modify the dset to unify matching and center
 dset$center <- ifelse(dset$center=="multi", "Multicenter", "Single-center")
@@ -37,10 +39,16 @@ dset$periods <- paste0("(", dset$start, " - ", dset$end, ")")
 dset$duration <- paste0(dset$duration, " days")
 dset$duation_periods <- paste(dset$duration, dset$periods, sep = "\n")
 
-# Finally  we modify the dset to summarize the quality assessment
+# Now  we modify the dset to summarize the quality assessment
 dset$stars <- paste0("NOS: ", dset$stars)
 dset$robins <- paste0 ("ROBINS-I: ", dset$robins)
 dset$quality <- paste(dset$stars, dset$robins, sep = "\n") 
+
+# Finally we modify the dset to include the baseline differences
+# Split strings based on ";"
+dset$baseline <- strsplit(dset$baseline, ";")
+# Concatenate individual elements with a line separator "\n"
+dset$baseline <- sapply(dset$baseline, function(x) paste(x, collapse = "\n"))
 
 
 # Now we create a data frame to export it as table of studies
@@ -51,7 +59,7 @@ df <- data.frame(
   Population = dset$n_exp_ctrl_tot,
   Duration = dset$duation_periods,
   Quality = dset$quality,
-  Baseline = rep("", nrow(dset)))
+  Baseline = dset$baseline)
 
 
 ################################################ EXPORT THE TABLE #################################################
@@ -661,7 +669,7 @@ legendTitle <- "Contribution"
 legendLabels <- levels(mapdata$"Percentage distribution at the level of studies by country")
 legendColors <- color_palette[1:length(legendLabels)]
 legend(x = "bottomleft", legend = legendLabels, fill = legendColors, title = legendTitle, bg = "white", cex = 1.5, inset = c(0, 0))
-title(main = "Percentage distribution at the level of studies by country", cex.main = 1.5, line = 1) 
+title(main = "Percentage distribution at the level of studies by country", cex.main = 2, line = 1) 
 # At the level of patients
 mapdata <- dset[dset$level=="patients",]
 mapdata$percentage<-as.factor(mapdata$percentage)
@@ -678,7 +686,7 @@ legendTitle <- "Contribution"
 legendLabels <- levels(mapdata$"Percentage distribution at the level of patients by country")
 legendColors <- color_palette[1:length(legendLabels)]
 legend(x = "bottomleft", legend = legendLabels, fill = legendColors, title = legendTitle, bg = "white", cex = 1.5, inset = c(0, 0))
-title(main = "Percentage distribution at the level of patients by country", cex.main = 1.5, line = 1) 
+title(main = "Percentage distribution at the level of patients by country", cex.main = 2, line = 1) 
 dev.off()
 
 # Then we will proceed with constructing pie charts that provide the same information but in more detail
@@ -692,7 +700,7 @@ percentages <- paste0(values, "%")
 # We will create a 3D pie chart with percentage labels & custom colors
 custom_colors<-c("red","blue","green","orange","purple","turquoise","violet","gold","skyblue","gray","pink","maroon","navy","salmon")
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi, labelcex = 1.2, mar = c(1, 0, 5, 8), col = custom_colors)
-title("Pie chart showing the percentage distribution of studies by country", cex.main = 1.8)
+title("Pie chart showing the percentage distribution of studies by country", cex.main = 1.5)
 # Increase the plotting area for the legend
 par(xpd = TRUE)
 # Calculate the position for the legend
@@ -717,7 +725,7 @@ countries<-labels
 percentages <- paste0(values, "%")
 # We will create a 3D pie chart with percentage labels & custom colors
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 1.2, mar = c(1, 0, 5, 8), col = new_custom_colors)
-title("Pie chart showing the percentage distribution of patients by country", cex.main = 1.8)
+title("Pie chart showing the percentage distribution of patients by country", cex.main = 1.5)
 # Increase the plotting area for the legend
 par(xpd = TRUE)
 # Calculate the position for the legend
@@ -737,9 +745,9 @@ dset<-SDEMO
 W_pie_sga <- 800
 H_pie_sga <- 950
 # Margin for top pie
-mar_top <- c(2, 1, 5, 12)
+mar_top <- c(2, 1, 5, 20)
 # Margin for bottom pie
-mar_bot <- c(1, 1, 7, 12)
+mar_bot <- c(2, 1, 5, 20)
 
 # Now we will construct pie charts showing the percentage distribution of studies & patients according to publication year
 png("6. Pie charts showing the percentages of studies & patients by publication year.png", width = W_pie_sga, height = H_pie_sga)
@@ -750,24 +758,24 @@ labels <- c("Published after 2018", "Published before 2018")
 percentages <- paste0(values, "%")
 colors <- c("maroon","skyblue") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
-title("Pie chart showing the percentages of studies by publication year", cex.main = 1.5, line = 1)
+title("Pie chart showing the percentages of studies by publication year", cex.main = 2, line = 1)
 par(xpd = TRUE)
 legend_x <- max(par("usr")[1:2]) + 0.2
 legend_y <- max(par("usr")[3:4]) - 1.5
-par(mar = c(2, 2, 2, 2))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 2)
 # At the level of patients
 values <- c(dset[dset$level=="patients",]$p_post_2018, dset[dset$level=="patients",]$p_pre_2018)
 labels <- c("Published after 2018", "Published before 2018")
 percentages <- paste0(values, "%")
 colors <- c("maroon","skyblue") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
-title("Pie chart showing the percentages of patients by publication year", cex.main = 1.5, line = -2)
+title("Pie chart showing the percentages of patients by publication year", cex.main = 2, line = -2)
 par(xpd = TRUE)
-legend_x <- max(par("usr")[1:2]) + 0.25
+legend_x <- max(par("usr")[1:2]) + 0.2
 legend_y <- max(par("usr")[3:4]) - 1.5
-par(mar = c(2, 2, 2, 2))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 1.5)
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 2)
 dev.off()
 
 ########################################### PATIENT MATCHING #####################################################
@@ -781,24 +789,24 @@ labels <- c("With patient matching", "Without patient matching")
 percentages <- paste0(values, "%")
 colors <- c("olivedrab","sandybrown") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
-title("Pie chart showing the percentages of studies by matching", cex.main = 1.5, line = 1)
+title("Pie chart showing the percentages of studies by matching", cex.main = 2, line = 1)
 par(xpd = TRUE)
 legend_x <- max(par("usr")[1:2]) + 0.1
 legend_y <- max(par("usr")[3:4]) - 1.5
-par(mar = c(1, 6, 2, 6))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 2)
 # At the level of patients
 values <- c(dset[dset$level=="patients",]$p_matching, dset[dset$level=="patients",]$p_no_matching)
 labels <- c("With patient matching", "Without patient matching")
 percentages <- paste0(values, "%")
 colors <- c("olivedrab","sandybrown") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.2, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
-title("Pie chart showing the percentages of patients by matching", cex.main = 1.5, line = -2)
+title("Pie chart showing the percentages of patients by matching", cex.main = 2, line = -2)
 par(xpd = TRUE)
-legend_x <- max(par("usr")[1:2]) + 0.15
+legend_x <- max(par("usr")[1:2]) + 0.1
 legend_y <- max(par("usr")[3:4]) - 1.5
-par(mar = c(1, 6, 2, 6))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 1.5)
+par(mar = c(2, 8, 2, 8))
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies", cex = 2)
 dev.off()
 
 ##################################### MULTICENTER / SINGLE-CENTER #################################################
@@ -812,24 +820,24 @@ labels <- c("Muticenter", "Single-center")
 percentages <- paste0(values, "%")
 colors <- c("firebrick","goldenrod")
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.1, labelcex = 2, mar = mar_top, col = colors, radius = 1)
-title("Pie chart showing the percentages of studies by center", cex.main = 1.5, line = 1)
+title("Pie chart showing the percentages of studies by center", cex.main = 2, line = 1)
 par(xpd = TRUE)
-legend_x <- max(par("usr")[1:2]) + 0.3
+legend_x <- max(par("usr")[1:2]) + 0.5
 legend_y <- max(par("usr")[3:4]) - 1.5
 par(mar = c(2, 8, 2, 8))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 1.5)
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies", cex = 2)
 # At the level of patients
 values <- c(dset[dset$level=="patients",]$p_multi, dset[dset$level=="patients",]$p_single)
 labels <- c("Muticenter studies", "Single-center studies")
 percentages <- paste0(values, "%")
 colors <- c("firebrick","goldenrod") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
-title("Pie chart showing the percentages of patients by center", cex.main = 1.5, line = -2)
+title("Pie chart showing the percentages of patients by center", cex.main = 2, line = -2)
 par(xpd = TRUE)
 legend_x <- max(par("usr")[1:2]) + 0.2
 legend_y <- max(par("usr")[3:4]) - 1.5
 par(mar = c(2, 8, 2, 8))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in", cex = 1.5)
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in", cex = 2)
 dev.off()
 
 ################################################## ROBINS-I ########################################################
@@ -843,23 +851,23 @@ labels <- c("ROBINS-I: Low", "ROBINS-I: Moderate", "ROBINS-I: Serious")
 percentages <- paste0(values, "%")
 colors <- c("seagreen","tan", "salmon") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.55, labelcex = 2, mar = mar_top, col = colors, radius = 1)
-title("Pie chart showing the percentages of studies by ROBINS-I class", cex.main = 1.5, line = 1)
+title("Pie chart showing the percentages of studies by ROBINS-I class", cex.main = 2, line = 1)
 par(xpd = TRUE)
-legend_x <- max(par("usr")[1:2]) + 0.25
+legend_x <- max(par("usr")[1:2]) + 0.3
 legend_y <- max(par("usr")[3:4]) - 1.5
 par(mar = c(2, 8, 2, 8))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies with", cex = 1.5)
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Studies with", cex = 2)
 # At the level of patients
 values <- c(dset[dset$level=="patients",]$p_low, dset[dset$level=="patients",]$p_moderate, dset[dset$level=="patients",]$p_serious)
 labels <- c("ROBINS-I: Low", "ROBINS-I: Moderate", "ROBINS-I: Serious")
 percentages <- paste0(values, "%")
 colors <- c("seagreen","tan", "salmon") 
 pie3D(values, labels = percentages, explode=0.05, theta=pi/3, start = pi/1.55, labelcex = 2, mar = mar_bot, col = colors, radius = 1)
-title("Pie chart showing the percentages of patients by ROBINS-I class", cex.main = 1.5, line = -2)
+title("Pie chart showing the percentages of patients by ROBINS-I class", cex.main = 2, line = -2)
 par(xpd = TRUE)
 legend_x <- max(par("usr")[1:2]) + 0.3
-legend_y <- max(par("usr")[3:4]) - 1.5
+legend_y <- max(par("usr")[3:4]) - 1.3
 par(mar = c(2, 8, 2, 8))
-legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies with", cex = 1.5)
+legend(legend_x, legend_y, legend = labels, fill = colors, title = "Patients in studies with", cex = 2)
 dev.off()
 
