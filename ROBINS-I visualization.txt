@@ -218,3 +218,159 @@ plot_6 <- rob_summary(rob_single, tool = "ROBINS-I", overall = TRUE, weighted = 
 grid.arrange(plot_5, plot_6, ncol = 1)
 dev.off()
 
+
+################################################ NOS PLOTS #########################################################
+
+# Formulate a new data.frame for NOS (Newcastle - Ottawa Scale)
+nos_dset<-ROBINS[,c("author", "center", "matched", "post_2018", "stars")]
+
+# Plot parameters
+# Pooled studies
+W_pool <- 1100
+H_pool <- 780
+
+# Subgroups
+W_sga <- 1000
+H_sga <- 1250
+
+# Pooled studies
+png("12. NOS rating histogram in pooled studies.png", width = W_pool, height = H_pool)
+par(mar = c(5, 6, 4, 0) + 0.1, mgp = c(3.25, 1, 0))
+# Create a histogram with each unique value in NOS rating as a bin, omitting the first 3 bins
+hist_data <- hist(nos_dset$stars, 
+                  breaks = seq(3, 9, by = 1),
+                  plot = FALSE)
+# Convert frequencies to percentages
+percentages <- prop.table(hist_data$counts) * 100
+# Plot the histogram with percentages on the y-axis
+barplot(percentages, 
+        names.arg = hist_data$breaks[-1], 
+        col = "brown1", 
+        main = "NOS rating in pooled studies", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 1.7,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+dev.off()
+
+
+# Studies published before or after 2018
+png("13. NOS rating histogram in studies published after or before 2018.png", width = W_sga, height = H_sga)
+par(mfrow = c(2, 1), mar = c(5, 6, 4, 0) + 0.1, mgp = c(3.25, 1, 0))
+hist_data_post_2018 <- hist(nos_dset[nos_dset$post_2018==1,]$stars, 
+                            breaks = seq(3, 9, by = 1),
+                            plot = FALSE)
+percentages_post_2018 <- prop.table(hist_data_post_2018$counts) * 100
+barplot(percentages_post_2018, 
+        names.arg = hist_data_post_2018$breaks[-1], 
+        col = "darkgoldenrod4", 
+        main = "NOS rating in studies published after 2018", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+
+hist_data_pre_2018 <- hist(nos_dset[nos_dset$post_2018==0,]$stars, 
+                           breaks = seq(3, 9, by = 1),
+                           plot = FALSE)
+percentages_pre_2018 <- prop.table(hist_data_pre_2018$counts) * 100
+barplot(percentages_pre_2018, 
+        names.arg = hist_data_pre_2018$breaks[-1], 
+        col = "darkgoldenrod2", 
+        main = "NOS rating in studies published before 2018", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+dev.off()
+
+
+# Studies with or without patient matching
+png("14. NOS rating histogram in studies with or without patient matching.png", width = W_sga, height = H_sga)
+par(mfrow = c(2, 1), mar = c(5, 6, 4, 0) + 0.1, mgp = c(3.25, 1, 0))
+hist_data_matched <- hist(nos_dset[nos_dset$matched==1,]$stars, 
+                          breaks = seq(3, 9, by = 1),
+                          plot = FALSE)
+percentages_matched <- prop.table(hist_data_matched$counts) * 100
+barplot(percentages_matched, 
+        names.arg = hist_data_matched$breaks[-1], 
+        col = "chartreuse4", 
+        main = "NOS rating in studies with patient matching", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+
+hist_data_non_matched <- hist(nos_dset[nos_dset$matched==0,]$stars, 
+                              breaks = seq(3, 9, by = 1),
+                              plot = FALSE)
+percentages_non_matched <- prop.table(hist_data_non_matched$counts) * 100
+barplot(percentages_non_matched, 
+        names.arg = hist_data_non_matched$breaks[-1], 
+        col = "chartreuse2", 
+        main = "NOS rating in studies without patient matching", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+dev.off()
+
+
+# Multicenter or single-center studies
+png("15. NOS rating histogram in multicenter or single-center studies.png", width = W_sga, height = H_sga)
+par(mfrow = c(2, 1), mar = c(5, 6, 4, 0) + 0.1, mgp = c(3.25, 1, 0))
+hist_data_multi <- hist(nos_dset[nos_dset$center=="multi",]$stars, 
+                        breaks = seq(3, 9, by = 1),
+                        plot = FALSE)
+percentages_multi <- prop.table(hist_data_multi$counts) * 100
+barplot(percentages_multi, 
+        names.arg = hist_data_multi$breaks[-1], 
+        col = "deepskyblue4", 
+        main = "NOS rating in multicenter studies", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+
+hist_data_single <- hist(nos_dset[nos_dset$center=="single",]$stars, 
+                         breaks = seq(3, 9, by = 1),
+                         plot = FALSE)
+percentages_single <- prop.table(hist_data_single$counts) * 100
+barplot(percentages_single, 
+        names.arg = hist_data_single$breaks[-1], 
+        col = "deepskyblue2", 
+        main = "NOS rating in single-center studies", 
+        xlab = "Quality stars", 
+        ylab = "Percentage of data (%)",
+        xlim = c(0, 9),
+        ylim = c(0, 60),
+        cex.main = 2,
+        cex.lab = 1.5,
+        cex.axis = 1.5,
+        cex.names = 1.5)
+dev.off()
+
