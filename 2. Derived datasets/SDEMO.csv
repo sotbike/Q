@@ -1,0 +1,3 @@
+level;n_post_2018;p_post_2018;n_pre_2018;p_pre_2018;n_matching;p_matching;n_no_matching;p_no_matching;n_multi;p_multi;n_single;p_single;n_low;p_low;n_moderate;p_moderate;n_serious;p_serious;n_rpn;p_rpn;n_rapn;p_rapn;n_cost;p_cost;total
+studies;22;53.66;19;46.34;20;48.78;21;51.22;13;31.71;28;68.29;17;41.46;17;41.46;7;17.08;13;31.71;28;68.29;0;0;41
+patients;14814;82.92;3051;17.08;8768;49.08;9097;50.92;12761;71.43;5104;28.57;9751;54.58;7256;40.62;858;4.8;6862;38.41;11003;61.59;0;0;17865

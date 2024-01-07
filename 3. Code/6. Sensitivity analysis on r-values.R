@@ -1,0 +1,722 @@
+########################################### PACKAGES & LIBRARIES ##################################################
+
+# Package installation and library loading
+install.packages("meta")
+install.packages("metafor")
+install.packages("metasens")
+
+library(meta)
+library(metafor)
+library(metasens)
+
+
+############################################### DATASETS ##########################################################
+# First we import the required dataset
+Q_SA<-read.csv("C:/Users/sotbi/Desktop/Data/Q_SA.csv", sep=";", header=TRUE)
+
+# Then we inspect the dataset
+head(Q_SA)
+
+#Now we define the dataset of interest
+dset<-Q_SA
+
+
+################################################ DATASET FACTORS ###################################################
+
+# First we define the order of reporting the different subgroups
+order_post2018 <- c("Studies published after 2018", "Studies published before 2018")
+order_matching <- c("Studies with patient matching", "Studies without patient matching")
+order_center <- c("Multicenter studies", "Single-center studies")
+order_robins <- c("Low Risk of Bias", "Moderate Risk of Bias", "Serious Risk of Bias")
+
+# Then we apply the predefined order of reporting to the dataset
+dset$post2018 <- factor(dset$post2018, levels = order_post2018)
+dset$matching <- factor(dset$matching, levels = order_matching)
+dset$center <- factor(dset$center, levels = order_center)
+dset$robins <- factor(dset$robins, levels = order_robins)
+
+
+########################################## MATRIX OF RESULTS #######################################################
+
+# We will create a matrix to save the results from sensitivity analysis
+# First we define the column names
+col_names<-c("r", "pooled", "pooled_lb", "pooled_ub", 
+             "published_after_2018", "published_after_2018_lb", "published_after_2018_ub", 
+             "published_before_2018", "published_before_2018_lb", "published_before_2018_ub",
+             "with_matching", "with_matching_lb", "with_matching_ub", 
+             "without_matching", "without_matching_lb", "without_matching_ub",
+             "single_center", "single_center_lb", "single_center_ub",
+             "multicenter", "multicenter_lb", "multicenter_ub",
+             "robins_low", "robins_low_lb", "robins_low_ub",
+             "robins_moderate", "robins_moderate_lb", "robins_moderate_ub",
+             "robins_serious", "robins_serious_lb", "robins_serious_ub")
+
+# Then we create the matrix of zeros with 21 rows and column names
+sens <- matrix(0, nrow = 21, ncol = length(col_names), dimnames = list(NULL, col_names))
+
+############################################## PARAMETERS #########################################################
+
+# Theoretical values of the correlation coefficient (r)
+rhos <- c(-0.99, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0 ,0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99)
+# We gain control over the value of rho through n
+# We will give the values 1:21 to n to perform the sensitivity analysis (these values correspond in different values of r)
+
+# We create a new folder named "Plots" on desktop 
+folder_name <- "Plots"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Now we set the working directory to this desktop folder 
+# This is where the plots are to be saved with unique titles
+setwd("C:/Users/sotbi/Desktop/Plots")
+# We set the precision level to 4 decimal places
+options(digits = 4)
+
+
+######################################### BOUNDARY PARAMETERS ###################################################
+
+# First we compute the boundaries of the x axis to use inside the funnel() function
+# For r = -0.99
+minr <- -0.99
+mc0reminr<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==minr,], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+x_range_minr <- c(min(round(mc0reminr$TE,3)), max(round(mc0reminr$TE,3)))
+# For r = +0.99
+maxr <- 0.99
+mc0remaxr<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==maxr,], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+x_range_maxr <- c(min(round(mc0remaxr$TE,3)), max(round(mc0remaxr$TE,3)))
+x_range <- c(min(x_range_minr[1], x_range_maxr[1])-0.1, max(x_range_minr[2], x_range_maxr[2])+0.1)
+
+# Then we compute the boundaries of the y axis to use inside the funnel() function
+# For r = -0.99
+mc0remtfminr<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==minr,], append = TRUE)
+y_range_minr <- c(min(round(mc0remtfminr$yi,3)), max(round(mc0remtfminr$yi,3)))
+# For r = +0.99
+mc0remtfmaxr<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==maxr,], append = TRUE)
+y_range_maxr <- c(min(round(mc0remtfmaxr$yi,3)), max(round(mc0remtfmaxr$yi,3)))
+y_range <- c(min(y_range_minr[1], y_range_maxr[1])-0.1, max(y_range_minr[2], y_range_maxr[2])+0.1)
+
+
+########################################### OUTPUT PARAMETERS #####################################################
+
+# Meta-analysis (MA)
+# Pooled analysis forest plot parameters (W: width, H: height)
+W_for_pool <- 800
+H_for_pool <- 800
+# Funnel & Radial plot parameters (W: width, H: height)
+W_fr <- 1200 
+H_fr <- 780
+# Subgroup analysis forest plot parameters (W: width, H: height)
+W_for_sga <- 800
+H_for_sga <- 950
+
+# Meta-regression analysis (MRA)
+# Pooled (Here the plots will be independent so we pick only these parameters!)
+W_pool <- 1200
+H_pool <- 780
+# Matching
+W_match <- 1000
+H_match <- 1250
+# Center
+W_center <- 1000
+H_center <- 1250
+# Robins
+W_robins <- 1000 
+H_robins <- 1500
+
+
+########################################## RANDOM EFFECTS MODEL ###################################################
+for (n in 1:length(rhos)) {
+  rho<-rhos[n]
+  sens[n,1]<-rho
+  # Two numbers were used to label each plot, with the first referring to the order in which each plot was produced, 
+  # and the second to the position within the correlation coefficient vector of the specific value that was used in calculations
+  # Meta-analysis
+  png(paste("1.",n,".png"), width = W_for_pool, height = H_for_pool)
+  mc0re<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho,], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  
+  sens[n,2]<-round(mc0re$TE.random,3)
+  sens[n,3]<-round(mc0re$lower.random,3)
+  sens[n,4]<-round(mc0re$upper.random,3)
+  
+  forestmc0re<-forest(mc0re, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", text.addline2 = paste("Correlation coefficient between EBL & OT: r = ",rho), xlim = c(min(round(mc0re$lower,3))-0.1, max(round(mc0re$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+  dev.off()
+  
+  par(mar = c(6, 6, 5.5, 4), mgp = c(3.75, 1, 0)) 
+  funnelmc0re<-funnel(mc0re, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = x_range, xlab = "", ylab = "", axes = FALSE)
+  coords <- par("usr")
+  rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+  axis(2, cex.axis = 1.5, pos = coords[1])
+  axis(1, cex.axis = 1.5, pos = coords[3])
+  legend(min(round(mc0re$TE,3)), 0.8, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+  radialmc0re<-radial(mc0re)
+  eggersmc0re<-metabias(mc0re, method.bias = "linreg", plotit = TRUE)
+  png(paste("2.",n,".png"), width = W_fr, height = H_fr)
+  par(mar = c(6, 6, 5.5, 4), mgp = c(3.75, 1, 0)) 
+  regmc0re<-lm(I(mc0re$TE/mc0re$seTE) ~ I(1/mc0re$seTE))
+  radial(mc0re, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+  coords <- par("usr")
+  rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+  axis(2, cex.axis = 1.5, pos = coords[1])
+  axis(1, cex.axis = 1.5, pos = coords[3])
+  abline(regmc0re)
+  title("Radial plot with a solid regression line for Egger's test", cex.main = 2, line = 2.7)
+  mtext(paste("r = ",rho), side = 3, line = 0.4, cex = 2)
+  dev.off()
+  
+  # Small study Effects
+  png(paste("3.",n,".png"),width = W_fr,height = H_fr)
+  par(mar = c(6, 6, 5.5, 4), mgp = c(3.75, 1, 0)) 
+  l2<-limitmeta(mc0re)
+  funnel(l2, cex = 1.5, xlim = c(min(round(mc0re$TE,3))-0.1, max(round(mc0re$TE,3))+2.5), xlab = "", ylab = "", axes = FALSE)
+  coords <- par("usr")
+  rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
+  axis(2, cex.axis = 1.5, pos = coords[1])
+  axis(1, cex.axis = 1.5, pos = coords[3])
+  print(l2, digits = 3)
+  title ("Funnel plot with a curved regression line for small study effects", cex.main = 2, line = 2.7)
+  title(xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.4, cex = 2)
+  dev.off()
+  
+  # subgroup analysis (post2018)
+  png(paste("4.",n,".png"), width = W_for_sga, height = H_for_sga)
+  mc0repost2018<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho,], comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = post2018, print.byvar = FALSE)
+  
+  subgroups_post2018<-unique(dset[dset$r==rho,]$post2018)
+  mc0repost2018_1<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$post2018==subgroups_post2018[1],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  mc0repost2018_2<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$post2018==subgroups_post2018[2],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  sens[n,5]<-round(mc0repost2018_1$TE.random,3)
+  sens[n,6]<-round(mc0repost2018_1$lower.random,3)
+  sens[n,7]<-round(mc0repost2018_1$upper.random,3)
+  sens[n,8]<-round(mc0repost2018_2$TE.random,3)
+  sens[n,9]<-round(mc0repost2018_2$lower.random,3)
+  sens[n,10]<-round(mc0repost2018_2$upper.random,3)
+  
+  forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", text.addline2 = paste("Correlation coefficient between EBL & OT: r = ",rho), xlim = c(min(round(mc0repost2018$lower,3))-0.1, max(round(mc0repost2018$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+  dev.off()
+  
+  # subgroup analysis (matching)
+  png(paste("5.",n,".png"), width = W_for_sga, height = H_for_sga)
+  mc0rematched<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho,], comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = matching, print.byvar = FALSE)
+  
+  subgroups_matching<-unique(dset[dset$r==rho,]$matching)
+  mc0rematched_1<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$matching==subgroups_matching[1],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  mc0rematched_2<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$matching==subgroups_matching[2],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  sens[n,11]<-round(mc0rematched_1$TE.random,3)
+  sens[n,12]<-round(mc0rematched_1$lower.random,3)
+  sens[n,13]<-round(mc0rematched_1$upper.random,3)
+  sens[n,14]<-round(mc0rematched_2$TE.random,3)
+  sens[n,15]<-round(mc0rematched_2$lower.random,3)
+  sens[n,16]<-round(mc0rematched_2$upper.random,3)
+  
+  forestmc0rematched<-forest(mc0rematched, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", text.addline2 = paste("Correlation coefficient between EBL & OT: r = ",rho), xlim = c(min(round(mc0rematched$lower,3))-0.1, max(round(mc0rematched$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+  dev.off()
+  
+  # subgroup analysis (center)
+  png(paste("6.",n,".png"), width = W_for_sga, height = H_for_sga)
+  mc0recenter<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho,], comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = center, print.byvar = FALSE)
+  
+  subgroups_center<-unique(dset[dset$r==rho,]$center)
+  mc0recenter_1<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$center==subgroups_center[1],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  mc0recenter_2<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$center==subgroups_center[2],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  sens[n,17]<-round(mc0recenter_1$TE.random,3)
+  sens[n,18]<-round(mc0recenter_1$lower.random,3)
+  sens[n,19]<-round(mc0recenter_1$upper.random,3)
+  sens[n,20]<-round(mc0recenter_2$TE.random,3)
+  sens[n,21]<-round(mc0recenter_2$lower.random,3)
+  sens[n,22]<-round(mc0recenter_2$upper.random,3)
+  
+  forestmc0recenter<-forest(mc0recenter, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", text.addline2 = paste("Correlation coefficient between EBL & OT: r = ",rho), xlim = c(min(round(mc0recenter$lower,3))-0.1, max(round(mc0recenter$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+  dev.off()
+  
+  # subgroup analysis (robins)
+  png(paste("7.",n,".png"), width = W_for_sga, height = H_for_sga)
+  mc0rerobins<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho,], comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = robins, print.byvar = FALSE)
+  
+  subgroups_robins<-unique(dset[dset$r==rho,]$robins)
+  mc0rerobins_1<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$robins==subgroups_robins[1],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  mc0rerobins_2<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$robins==subgroups_robins[2],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  mc0rerobins_3<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset[dset$r==rho & dset$robins==subgroups_robins[3],], studlab = study, comb.fixed = FALSE, hakn = TRUE)
+  sens[n,23]<-round(mc0rerobins_1$TE.random,3)
+  sens[n,24]<-round(mc0rerobins_1$lower.random,3)
+  sens[n,25]<-round(mc0rerobins_1$upper.random,3)
+  sens[n,26]<-round(mc0rerobins_2$TE.random,3)
+  sens[n,27]<-round(mc0rerobins_2$lower.random,3)
+  sens[n,28]<-round(mc0rerobins_2$upper.random,3)
+  sens[n,29]<-round(mc0rerobins_3$TE.random,3)
+  sens[n,30]<-round(mc0rerobins_3$lower.random,3)
+  sens[n,31]<-round(mc0rerobins_3$upper.random,3)
+  
+  forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", text.addline2 = paste("Correlation coefficient between EBL & OT: r = ",rho), xlim = c(min(round(mc0rerobins$lower,3))-0.1, max(round(mc0rerobins$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+  dev.off()
+  
+  
+  # Meta Regression Analysis for publication year in all studies (using metafor)
+  png(paste("8.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtf<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho,], append = TRUE)
+  mc0remtfma<-rma(yi, vi, data = mc0remtf, method = "REML", mods = ~year)
+  yearvec<-seq(min(dset[dset$r==rho,]$year), max(dset[dset$r==rho,]$year), 1)
+  preds2<-predict(mc0remtfma, newmods = yearvec)
+  wi2<-1/sqrt(mc0remtf$vi+mc0remtfma$tau2)
+  size2<-1+2*(wi2 - min(wi2)) / (max(wi2) - min(wi2))
+  plot(mc0remtf$year, mc0remtf$yi, pch = 1, cex = size2, xlim = c(min(dset[dset$r==rho,]$year)-1, max(dset[dset$r==rho,]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvec, preds2$pred, lwd = 2, col = "red")
+  lines(yearvec, preds2$ci.lb, lty = "dashed")
+  lines(yearvec, preds2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.5)
+  axis(side = 1, cex.axis = 1.5)
+  title("Meta-regression of the comparative effect in all studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for publication year in studies with patient matching (using metafor)
+  png(paste("9.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfmatched<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$matching=="Studies with patient matching",], append = TRUE)
+  mc0remtfmamatched<-rma(yi, vi, data = mc0remtfmatched, method = "REML", mods = ~year)
+  yearvecmatched<-seq(min(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$year), max(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$year), 1)
+  predsmatched2<-predict(mc0remtfmamatched, newmods = yearvecmatched)
+  wimatched2<-1/sqrt(mc0remtfmatched$vi+mc0remtfmamatched$tau2)
+  sizematched2<- 1+2*(wimatched2 - min(wimatched2)) / (max(wimatched2) - min(wimatched2))
+  plot(mc0remtfmatched$year, mc0remtfmatched$yi, pch = 1, cex = sizematched2, xlim = c(min(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$year)-1, max(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecmatched, predsmatched2$pred, lwd = 2, col = "darkgreen")
+  lines(yearvecmatched, predsmatched2$ci.lb, lty = "dashed")
+  lines(yearvecmatched, predsmatched2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies with patient matching", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for publication year in studies without patient matching (using metafor)
+  png(paste("10.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfnonmatched<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$matching=="Studies without patient matching",], append = TRUE)
+  mc0remtfmanonmatched<-rma(yi, vi, data = mc0remtfnonmatched, method = "REML", mods = ~year)
+  yearvecnonmatched<-seq(min(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$year), max(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$year), 1)
+  predsnonmatched2<-predict(mc0remtfmanonmatched, newmods = yearvecnonmatched)
+  winonmatched2<-1/sqrt(mc0remtfnonmatched$vi+mc0remtfmanonmatched$tau2)
+  sizenonmatched2<- 1+2*(winonmatched2 - min(winonmatched2)) / (max(winonmatched2) - min(winonmatched2))
+  plot(mc0remtfnonmatched$year, mc0remtfnonmatched$yi, pch = 1, cex = sizenonmatched2, xlim = c(min(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$year)-1, max(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecnonmatched, predsnonmatched2$pred, lwd = 2, col = "lightgreen")
+  lines(yearvecnonmatched, predsnonmatched2$ci.lb, lty = "dashed")
+  lines(yearvecnonmatched, predsnonmatched2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies without patient matching", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for publication year in multicenter studies (using metafor)
+  png(paste("11.",n,".png"),width = W_pool,height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfmulti<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$center=="Multicenter studies",], append = TRUE)
+  mc0remtfmamulti<-rma(yi, vi, data = mc0remtfmulti, method = "REML", mods = ~year)
+  yearvecmulti<-seq(min(data = dset[dset$r==rho & dset$center=="Multicenter studies",]$year), max(data = dset[dset$r==rho & dset$center=="Multicenter studies",]$year), 1)
+  predsmulti2<-predict(mc0remtfmamulti, newmods = yearvecmulti)
+  wimulti2<-1/sqrt(mc0remtfmulti$vi+mc0remtfmamulti$tau2)
+  sizemulti2<- 1+2*(wimulti2 - min(wimulti2)) / (max(wimulti2) - min(wimulti2))
+  plot(mc0remtfmulti$year, mc0remtfmulti$yi, pch = 1, cex = sizemulti2, xlim = c(min(dset[dset$r==rho & dset$center=="Multicenter studies",]$year)-1, max(dset[dset$r==rho & dset$center=="Multicenter studies",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecmulti, predsmulti2$pred, lwd = 2, col = "darkblue")
+  lines(yearvecmulti, predsmulti2$ci.lb, lty = "dashed")
+  lines(yearvecmulti, predsmulti2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in multicenter studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for publication year in single-center studies (using metafor)
+  png(paste("12.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfsingle<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$center=="Single-center studies",], append = TRUE)
+  mc0remtfmasingle<-rma(yi, vi, data = mc0remtfsingle, method = "REML", mods = ~year)
+  yearvecsingle<-seq(min(data = dset[dset$r==rho & dset$center=="Single-center studies",]$year), max(data = dset[dset$r==rho & dset$center=="Single-center studies",]$year), 1)
+  predssingle2<-predict(mc0remtfmasingle, newmods = yearvecsingle)
+  wisingle2<-1/sqrt(mc0remtfsingle$vi+mc0remtfmasingle$tau2)
+  sizesingle2<- 1+2*(wisingle2 - min(wisingle2)) / (max(wisingle2) - min(wisingle2))
+  plot(mc0remtfsingle$year, mc0remtfsingle$yi, pch = 1, cex = sizesingle2, xlim = c(min(dset[dset$r==rho & dset$center=="Single-center studies",]$year)-1, max(dset[dset$r==rho & dset$center=="Single-center studies",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecsingle, predssingle2$pred, lwd = 2, col = "lightblue")
+  lines(yearvecsingle, predssingle2$ci.lb, lty = "dashed")
+  lines(yearvecsingle, predssingle2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in single-center studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for publication year in ROBINS-I: "Low Risk of Bias" studies (using metafor)
+  png(paste("13.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtflow<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$robins=="Low Risk of Bias",], append = TRUE)
+  mc0remtfmalow<-rma(yi, vi, data = mc0remtflow, method = "REML", mods = ~year)
+  yearveclow<-seq(min(data = dset[dset$r==rho & dset$robins=="Low Risk of Bias",]$year), max(data = dset[dset$r==rho & dset$robins=="Low Risk of Bias",]$year), 1)
+  predslow2<-predict(mc0remtfmalow, newmods = yearveclow)
+  wilow2<-1/sqrt(mc0remtflow$vi+mc0remtfmalow$tau2)
+  sizelow2<- 1+2*(wilow2 - min(wilow2)) / (max(wilow2) - min(wilow2))
+  plot(mc0remtflow$year, mc0remtflow$yi, pch = 1, cex = sizelow2, xlim = c(min(dset[dset$r==rho & dset$robins=="Low Risk of Bias",]$year)-1, max(dset[dset$r==rho & dset$robins=="Low Risk of Bias",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearveclow, predslow2$pred, lwd = 2, col = "purple")
+  lines(yearveclow, predslow2$ci.lb, lty = "dashed")
+  lines(yearveclow, predslow2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies with ROBINS-I: Low", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for publication year in ROBINS-I: "Moderate Risk of Bias" studies (using metafor)
+  png(paste("14.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfmoderate<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$robins=="Moderate Risk of Bias",], append = TRUE)
+  mc0remtfmamoderate<-rma(yi, vi, data = mc0remtfmoderate, method = "REML", mods = ~year)
+  yearvecmoderate<-seq(min(data = dset[dset$r==rho & dset$robins=="Moderate Risk of Bias",]$year), max(data = dset[dset$r==rho & dset$robins=="Moderate Risk of Bias",]$year), 1)
+  predsmoderate2<-predict(mc0remtfmamoderate, newmods = yearvecmoderate)
+  wimoderate2<-1/sqrt(mc0remtfmoderate$vi+mc0remtfmamoderate$tau2)
+  sizemoderate2<- 1+2*(wimoderate2 - min(wimoderate2)) / (max(wimoderate2) - min(wimoderate2))
+  plot(mc0remtfmoderate$year, mc0remtfmoderate$yi, pch = 1, cex = sizemoderate2, xlim = c(min(dset[dset$r==rho & dset$robins=="Moderate Risk of Bias",]$year)-1, max(dset[dset$r==rho & dset$robins=="Moderate Risk of Bias",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecmoderate, predsmoderate2$pred, lwd = 2, col = "magenta")
+  lines(yearvecmoderate, predsmoderate2$ci.lb, lty = "dashed")
+  lines(yearvecmoderate, predsmoderate2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies with ROBINS-I: Moderate", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for publication year in ROBINS-I: "Serious Risk of Bias" studies (using metafor)
+  png(paste("15.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfserious<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$robins=="Serious Risk of Bias",], append = TRUE)
+  mc0remtfmaserious<-rma(yi, vi, data = mc0remtfserious, method = "REML", mods = ~year)
+  yearvecserious<-seq(min(data = dset[dset$r==rho & dset$robins=="Serious Risk of Bias",]$year), max(data = dset[dset$r==rho & dset$robins=="Serious Risk of Bias",]$year), 1)
+  predsserious2<-predict(mc0remtfmaserious, newmods = yearvecserious)
+  wiserious2<-1/sqrt(mc0remtfserious$vi+mc0remtfmaserious$tau2)
+  sizeserious2<- 1+2*(wiserious2 - min(wiserious2)) / (max(wiserious2) - min(wiserious2))
+  plot(mc0remtfserious$year, mc0remtfserious$yi, pch = 1, cex = sizeserious2, xlim = c(min(dset[dset$r==rho & dset$robins=="Serious Risk of Bias",]$year)-1, max(dset[dset$r==rho & dset$robins=="Serious Risk of Bias",]$year)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(yearvecserious, predsserious2$pred, lwd = 2, col = "pink")
+  lines(yearvecserious, predsserious2$ci.lb, lty = "dashed")
+  lines(yearvecserious, predsserious2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies with ROBINS-I: Serious", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
+  png(paste("16.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfstars<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho,], append = TRUE)
+  mc0remtfmastars<-rma(yi, vi, data = mc0remtfstars, method = "REML", mods = ~stars)
+  starsvec<-seq(min(dset[dset$r==rho,]$stars), max(dset[dset$r==rho,]$stars), 1)
+  predsstars2<-predict(mc0remtfmastars, newmods = starsvec)
+  wistars2<-1/sqrt(mc0remtfstars$vi+mc0remtfmastars$tau2)
+  sizestars2<-1+2*(wistars2 - min(wistars2)) / (max(wistars2) - min(wistars2))
+  plot(mc0remtfstars$stars, mc0remtfstars$yi, pch = 1, cex = sizestars2, xlim = c(min(dset[dset$r==rho,]$stars)-1, max(dset[dset$r==rho,]$stars)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(starsvec, predsstars2$pred, lwd = 2, col = "red")
+  lines(starsvec, predsstars2$ci.lb, lty = "dashed")
+  lines(starsvec, predsstars2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in all studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in studies with patient matching (using metafor)
+  png(paste("17.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfstarsmatched<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$matching=="Studies with patient matching",], append = TRUE)
+  mc0remtfmastarsmatched<-rma(yi, vi, data = mc0remtfstarsmatched, method = "REML", mods = ~stars)
+  starsvecmatched<-seq(min(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$stars), max(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$stars), 1)
+  predsstarsmatched2<-predict(mc0remtfmastarsmatched, newmods = starsvecmatched)
+  wistarsmatched2<-1/sqrt(mc0remtfstarsmatched$vi+mc0remtfmastarsmatched$tau2)
+  sizestarsmatched2<-1+2*(wistarsmatched2 - min(wistarsmatched2)) / (max(wistarsmatched2) - min(wistarsmatched2))
+  plot(mc0remtfstarsmatched$stars, mc0remtfstarsmatched$yi, pch = 1, cex = sizestarsmatched2, xlim = c(min(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$stars)-1, max(dset[dset$r==rho & dset$matching=="Studies with patient matching",]$stars)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(starsvecmatched, predsstarsmatched2$pred, lwd = 2, col = "darkgreen")
+  lines(starsvecmatched, predsstarsmatched2$ci.lb, lty = "dashed")
+  lines(starsvecmatched, predsstarsmatched2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies with patient matching", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in studies without patient matching (using metafor)
+  png(paste("18.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfstarsnonmatched<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$matching=="Studies without patient matching",], append = TRUE)
+  mc0remtfmastarsnonmatched<-rma(yi, vi, data = mc0remtfstarsnonmatched, method = "REML", mods = ~stars)
+  starsvecnonmatched<-seq(min(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$stars), max(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$stars), 1)
+  predsstarsnonmatched2<-predict(mc0remtfmastarsnonmatched, newmods = starsvecnonmatched)
+  wistarsnonmatched2<-1/sqrt(mc0remtfstarsnonmatched$vi+mc0remtfmastarsnonmatched$tau2)
+  sizestarsnonmatched2<-1+2*(wistarsnonmatched2 - min(wistarsnonmatched2)) / (max(wistarsnonmatched2) - min(wistarsnonmatched2))
+  plot(mc0remtfstarsnonmatched$stars, mc0remtfstarsnonmatched$yi, pch = 1, cex = sizestarsnonmatched2, xlim = c(min(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$stars)-1, max(dset[dset$r==rho & dset$matching=="Studies without patient matching",]$stars)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(starsvecnonmatched, predsstarsnonmatched2$pred, lwd = 2, col = "lightgreen")
+  lines(starsvecnonmatched, predsstarsnonmatched2$ci.lb, lty = "dashed")
+  lines(starsvecnonmatched, predsstarsnonmatched2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in studies without patient matching", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  
+  # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in multicenter studies (using metafor)
+  png(paste("19.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfstarsmulti<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$center=="Multicenter studies",], append = TRUE)
+  mc0remtfmastarsmulti<-rma(yi, vi, data = mc0remtfstarsmulti, method = "REML", mods = ~stars)
+  starsvecmulti<-seq(min(dset[dset$r==rho & dset$center=="Multicenter studies",]$stars), max(dset[dset$r==rho & dset$center=="Multicenter studies",]$stars), 1)
+  predsstarsmulti2<-predict(mc0remtfmastarsmulti, newmods = starsvecmulti)
+  wistarsmulti2<-1/sqrt(mc0remtfstarsmulti$vi+mc0remtfmastarsmulti$tau2)
+  sizestarsmulti2<-1+2*(wistarsmulti2 - min(wistarsmulti2)) / (max(wistarsmulti2) - min(wistarsmulti2))
+  plot(mc0remtfstarsmulti$stars, mc0remtfstarsmulti$yi, pch = 1, cex = sizestarsmulti2, xlim = c(min(dset[dset$r==rho & dset$center=="Multicenter studies",]$stars)-1, max(dset[dset$r==rho & dset$center=="Multicenter studies",]$stars)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(starsvecmulti, predsstarsmulti2$pred, lwd = 2, col = "darkblue")
+  lines(starsvecmulti, predsstarsmulti2$ci.lb, lty = "dashed")
+  lines(starsvecmulti, predsstarsmulti2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in multicenter studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+  
+  # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in single-center studies (using metafor)
+  png(paste("20.",n,".png"), width = W_pool, height = H_pool)
+  par(mar = c(5, 5.5, 4, 2) + 0.1)
+  mc0remtfstarssingle<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset[dset$r==rho & dset$center=="Single-center studies",], append = TRUE)
+  mc0remtfmastarssingle<-rma(yi, vi, data = mc0remtfstarssingle, method = "REML", mods = ~stars)
+  starsvecsingle<-seq(min(dset[dset$r==rho & dset$center=="Single-center studies",]$stars), max(dset[dset$r==rho & dset$center=="Single-center studies",]$stars), 1)
+  predsstarssingle2<-predict(mc0remtfmastarssingle, newmods = starsvecsingle)
+  wistarssingle2<-1/sqrt(mc0remtfstarssingle$vi+mc0remtfmastarssingle$tau2)
+  sizestarssingle2<-1+2*(wistarssingle2 - min(wistarssingle2)) / (max(wistarssingle2) - min(wistarssingle2))
+  plot(mc0remtfstarssingle$stars, mc0remtfstarssingle$yi, pch = 1, cex = sizestarssingle2, xlim = c(min(dset[dset$r==rho & dset$center=="Single-center studies",]$stars)-1, max(dset[dset$r==rho & dset$center=="Single-center studies",]$stars)+1), ylim = y_range, ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", cex.lab = 1.5, xaxt = "n", yaxt = "n")
+  lines(starsvecsingle, predsstarssingle2$pred, lwd = 2, col = "lightblue")
+  lines(starsvecsingle, predsstarssingle2$ci.lb, lty = "dashed")
+  lines(starsvecsingle, predsstarssingle2$ci.ub, lty = "dashed")
+  abline(h=0, lwd = 2, lty = "dotted")
+  axis(side = 2, at = seq(round(y_range[1],0), round(y_range[2],0), 1), cex.axis = 1.2)
+  axis(side = 1, cex.axis = 1.2)
+  title("Meta-regression of the comparative effect in single-center studies", cex.main = 2, line = 2.5)
+  mtext(paste("r = ",rho), side = 3, line = 0.2, cex = 2)
+  dev.off()
+}
+
+
+########################################## SAVE THE MATRIX OF RESULTS ###############################################
+
+# We create a new folder named "Excel" on desktop 
+folder_name <- "Excel"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Export the matrix as an MS Excel file
+install.packages("openxlsx")
+library(openxlsx)
+
+# Specify the file path for the Excel file
+file_path <- "C:/Users/sotbi/Desktop/Excel/SENS.xlsx"
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the dataset to the workbook
+addWorksheet(wb, "Sheet1")
+writeData(wb, "Sheet1", sens)
+
+# Specify the number of decimal places for the Value columns
+style <- createStyle(numFmt = "#,##0.000000")
+addStyle(wb, "Sheet1", style, rows = NULL, cols = "B")
+
+# Save the workbook as an Excel file
+saveWorkbook(wb, file_path)
+
+# Print a confirmation message
+cat("Data exported successfully to", file_path)
+
+
+########################################## SENSITIVITY ANALYSIS PLOTS ###############################################
+
+# The above excel file was converted to a csv file 
+# Then the csv was transferred into the desktop folder named "Data"
+# First we import the newly formed dataset from the "Data" folder
+SENS<-read.csv("C:/Users/sotbi/Desktop/Data/SENS.csv", sep=";", header=TRUE)
+
+# Then we inspect the dataset
+head(SENS)
+
+#Now we define the dataset of interest
+dset<-SENS
+
+# We create a new folder named "Plots_SA" on desktop 
+folder_name <- "Plots_SA"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Now we set the working directory to this new folder 
+# This is where the sensitivity analysis plots are to be saved
+setwd("C:/Users/sotbi/Desktop/Plots_SA")
+
+
+# Plotting MD with lower and upper bounds in all studies
+png("1. MD of Q in the theoretical range of r for all studies.png",width = W_pool,height = H_pool)
+par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+plot(dset$r, dset$pooled, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+# Adding dashed lines for lower and upper bounds
+lines(dset$r, dset$pooled_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$pooled_ub, lty = "dashed", col = "black")
+# Adding a horizontal line at 0 with a faint solid line
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+# Adjusting x-axis tick marks and labels
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Pooled studies)", cex.main = 2)
+dev.off()
+
+
+# Plotting MD with lower and upper bounds in studies published after or before 2018
+png("2. MD of Q in the theoretical range of r for studies published after or before 2018.png", width = W_match ,height = H_match)
+par(mfrow = c(2, 1), mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+# For studies published after 2018
+plot(dset$r, dset$published_after_2018, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$published_after_2018_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$published_after_2018_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Studies published after 2018)", cex.main = 2)
+# For studies published before 2018
+plot(dset$r, dset$published_before_2018, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$published_before_2018_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$published_before_2018_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Studies published before 2018)", cex.main = 2)
+dev.off()
+
+
+# Plotting MD with lower and upper bounds in studies with or without patient matching
+png("3. MD of Q in the theoretical range of r for studies with patient matching.png", width = W_match ,height = H_match)
+par(mfrow = c(2, 1), mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+# For studies with patient matching
+plot(dset$r, dset$with_matching, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$with_matching_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$with_matching_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Studies with matching)", cex.main = 2)
+# For studies without patient matching
+plot(dset$r, dset$without_matching, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$without_matching_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$without_matching_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Studies without matching)", cex.main = 2)
+dev.off()
+
+
+# Plotting MD with lower and upper bounds in multi- or single-center center studies
+png("4. MD of Q in the theoretical range of r for multi- or single-center studies.png", width = W_center, height = H_center)
+par(mfrow = c(2, 1), mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+# For multicenter studies
+plot(dset$r, dset$multicenter, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$multicenter_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$multicenter_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Multicenter studies)", cex.main = 2)
+# For single-center studies
+plot(dset$r, dset$single_center, type = "l", col = "black", lwd = 2, cex.lab = 1.5, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$single_center_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$single_center_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 1.5)
+axis(side = 2, cex.axis = 1.5)
+title("MD of Q in the range of r-values (Single-center studies)", cex.main = 2)
+dev.off()
+
+
+# Plotting MD with lower and upper bounds in studies with ROBINS-I: Low - Moderate - Serious
+png("5. MD of Q in the theoretical range of r for studies with ROBINS-I Low - Moderate - Serious.png", width = W_robins, height = H_robins)
+par(mfrow = c(3, 1), mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
+# For studies with ROBINS-I: Low
+plot(dset$r, dset$robins_low, type = "l", col = "black", lwd = 2, cex.lab = 2, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$robins_low_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$robins_low_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 2)
+axis(side = 2, cex.axis = 2)
+title("MD of Q in the range of r-values (Studies with ROBINS-I: Low)", cex.main = 2.4)
+# For studies with ROBINS-I: Moderate
+plot(dset$r, dset$robins_moderate, type = "l", col = "black", lwd = 2, cex.lab = 2, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$robins_moderate_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$robins_moderate_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 2)
+axis(side = 2, cex.axis = 2)
+title("MD of Q in the range of r-values (Studies with ROBINS-I: Moderate)", cex.main = 2.4)
+# For studies with ROBINS-I: Serious
+plot(dset$r, dset$robins_serious, type = "l", col = "black", lwd = 2, cex.lab = 2, ylim = range(c(min(dset$pooled_lb)-1, max(dset$pooled_ub)+1)), xlab = "Correlation coefficient (r)", ylab = "Mean diference of Q (RPN / RAPN - OPN)", xaxt = "n", yaxt = "n")
+lines(dset$r, dset$robins_serious_lb, lty = "dashed", col = "black")
+lines(dset$r, dset$robins_serious_ub, lty = "dashed", col = "black")
+abline(h = 0, col = "gray", lty = "solid", lwd = 1)
+axis(side = 1, at = seq(-1, 1, 0.2), cex.axis = 2)
+axis(side = 2, cex.axis = 2)
+title("MD of Q in the range of r-values (Studies with ROBINS-I: Serious)", cex.main = 2.4)
+dev.off()
+
+
+

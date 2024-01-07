@@ -1,0 +1,263 @@
+################################################# DATASETS #########################################################
+
+# We import the datasets of interest
+EBL<-read.csv("C:/Users/sotbi/Desktop/Data/EBL.csv", sep=";", header=TRUE)
+OT<-read.csv("C:/Users/sotbi/Desktop/Data/OT.csv", sep=";", header=TRUE)
+
+# Inspect the EBL & OT csv files
+head(EBL)
+head(OT)
+
+
+############################### ESTIMATION OF r FOR EVERY STUDY & IN EACH ARM ######################################
+
+# First we define the studies from EBL.csv & OT.csv files
+studnames <- EBL$study
+
+# Then we define the parameters of the Experimental arm (RPN / RAPN) from EBL.csv & OT.csv files
+mean_EBL_exp <- EBL$mexp
+mean_OT_exp <- OT$mexp
+se_EBL_exp <- EBL$sexp
+se_OT_exp <- OT$sexp
+n_EBL_exp <- EBL$nexp
+n_OT_exp <- OT$nexp
+
+# And then we define the parameters of the Control arm (OPN) from EBL.csv & OT.csv files
+mean_EBL_ctrl <- EBL$mctrl
+mean_OT_ctrl <- OT$mctrl
+se_EBL_ctrl <- EBL$sctrl
+se_OT_ctrl <- OT$sctrl
+n_EBL_ctrl <- EBL$nctrl
+n_OT_ctrl <- OT$nctrl
+
+
+set.seed(123)  # For reproducibility
+repetitions <- 1000
+
+# Estimation of the correlation coefficient between EBL & OT in each study of the Experimental arm
+
+# Empty matrix to store correlation coefficients
+R_exp <- matrix(0, nrow = repetitions, ncol = length(n_EBL_exp))
+
+# Monte Carlo simulation
+for (i in 1:length(n_EBL_exp)) {
+  for (j in 1:repetitions) {
+    # Generate random values for EBL and OT
+    EBL_exp <- rnorm(n_EBL_exp[i], mean = mean_EBL_exp[i], sd = se_EBL_exp[i])
+    OT_exp <- rnorm(n_OT_exp[i], mean = mean_OT_exp[i], sd = se_OT_exp[i])
+    
+    # Calculate correlation coefficient
+    R_exp[j, i] <- cor(EBL_exp, OT_exp)
+  }
+}
+
+# Calculate mean R for each combination
+RS_exp <- apply(R_exp, 2, mean)
+
+# Print the mean R for each combination
+# print(RS_exp)
+
+
+# Estimation of the correlation coefficient between EBL & OT in each study of the Control arm
+
+# Empty matrix to store correlation coefficients
+R_ctrl <- matrix(0, nrow = repetitions, ncol = length(n_EBL_ctrl))
+
+# Monte Carlo simulation
+for (i in 1:length(n_EBL_ctrl)) {
+  for (j in 1:repetitions) {
+    # Generate random values for EBL and OT
+    EBL_ctrl <- rnorm(n_EBL_ctrl[i], mean = mean_EBL_ctrl[i], sd = se_EBL_ctrl[i])
+    OT_ctrl <- rnorm(n_OT_ctrl[i], mean = mean_OT_ctrl[i], sd = se_OT_ctrl[i])
+    
+    # Calculate correlation coefficient
+    R_ctrl[j, i] <- cor(EBL_ctrl, OT_ctrl)
+  }
+}
+
+# Calculate mean R for each combination
+RS_ctrl <- apply(R_ctrl, 2, mean)
+
+# Print the mean R for each combination
+# print(RS_ctrl)
+
+# Create the final dataframe
+corcoefs <- data.frame(Column1 = studnames, Column2 = RS_exp, Column3 = RS_ctrl)
+
+# Assign column names
+colnames(corcoefs) <- c("Study", "Estimated r in exp", "Estimated r in ctrl")
+
+# Print the dataframe
+# print(corcoefs)
+
+# With 5 decimal places
+options(scipen = 999)
+options(digits = 1)
+corcoefs
+
+
+############################################### SAVE AS EXCEL #####################################################
+
+# We create a new folder named "Excel" on desktop 
+folder_name <- "Excel"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Export the dataframe as an MS Excel file
+install.packages("openxlsx")
+library(openxlsx)
+
+# Specify the file path for the Excel file
+file_path <- "C:/Users/sotbi/Desktop/Excel/RS.xlsx"
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the data.frame to the workbook
+addWorksheet(wb, "Sheet1")
+writeData(wb, "Sheet1", corcoefs)
+
+# Specify the number of decimal places for the Value column
+style <- createStyle(numFmt = "#,##0.000000")
+addStyle(wb, "Sheet1", style, rows = NULL, cols = "B")
+
+# Save the workbook as an Excel file
+saveWorkbook(wb, file_path)
+
+# Print a confirmation message
+cat("Data exported successfully to", file_path)
+
+
+
+############################# OVERALL CORRELATION COEFFICIENT BETWEEN EBL & OT #####################################
+
+# We create a new folder named "Correlation" on desktop 
+folder_name <- "Correlation"
+# Specify the desktop path
+desktop_path <- file.path("C:/Users/sotbi/Desktop")
+# Create the folder path
+folder_path <- file.path(desktop_path, folder_name)
+
+# Check if the folder already exists
+if (dir.exists(folder_path)) {
+  print("Folder already exists!")
+} else {
+  # Create the folder on the desktop
+  dir.create(folder_path)
+  print("Folder created successfully!")
+}
+
+# Now we set the working directory to this desktop folder 
+# This is where the plot is to be saved
+setwd("C:/Users/sotbi/Desktop/Correlation")
+
+# We are going to explore the overall correlation coefficients between the expected values of EBL and OT in exp (RPN / RAPN) and ctrl (OPN) arms
+m_EBL_exp <- EBL$mexp
+m_EBL_ctrl <- EBL$mctrl
+m_OT_exp <- OT$mexp
+m_OT_ctrl <- OT$mctrl
+cor_exp <- cor(m_OT_exp, m_EBL_exp)
+cor_ctrl <- cor(m_OT_ctrl, m_EBL_ctrl)
+png("Distribution of EBL - OT pairs in exp & ctrl.png", width = 1300,height = 750)
+par(mfrow = c(1, 2), mar = c(5, 5.5, 4, 2) + 0.1)
+plot(m_OT_exp, m_EBL_exp, main = "Distribution of EBL - OT pairs in RPN / RAPN", cex.main = 2, xlab = "OT (min)", ylab = "EBL (ml)", xlim=c(min(min(m_OT_exp),min(m_OT_ctrl))-15,max(max(m_OT_exp),max(m_OT_ctrl))+15), ylim=c(min(min(m_EBL_exp),min(m_EBL_ctrl))-5,max(max(m_EBL_exp),max(m_EBL_ctrl))+5), col=2, cex = 1.5, cex.lab = 1.5, cex.axis = 1.5)
+abline(lm(m_EBL_exp ~ m_OT_exp), col = "gray", lty = "dashed")
+plot(m_OT_ctrl, m_EBL_ctrl, main = "Distribution of EBL - OT pairs in OPN", cex.main = 2, xlab = "OT (min)", ylab = "EBL (ml)",xlim=c(min(min(m_OT_exp),min(m_OT_ctrl))-15,max(max(m_OT_exp),max(m_OT_ctrl))+15), ylim=c(min(min(m_EBL_exp),min(m_EBL_ctrl))-5,max(max(m_EBL_exp),max(m_EBL_ctrl))+5), cex = 1.5, cex.lab = 1.5, cex.axis = 1.5)
+abline(lm(m_EBL_ctrl ~ m_OT_ctrl), col = "gray", lty = "dashed")
+dev.off()
+
+
+# We are using Fisher's z-test to check if there is a difference between the correlation coefficients of the two arms
+# We assume the exp and ctrl arms to represent two independent samples
+# Sample sizes
+n_exp <- length(m_EBL_exp)
+n_ctrl <- length(m_EBL_ctrl)
+
+# Compute Fisher's z-transformed values
+z_exp <- 0.5 * log((1 + cor_exp) / (1 - cor_exp))
+z_ctrl <- 0.5 * log((1 + cor_ctrl) / (1 - cor_ctrl))
+
+# Compute standard errors
+se_exp <- 1 / sqrt(n_exp - 3)
+se_ctrl <- 1 / sqrt(n_ctrl - 3)
+
+# Compute z-test statistic
+z <- (z_exp - z_ctrl) / sqrt(se_exp^2 + se_ctrl^2)
+
+# Compute p-value
+p_value <- 2 * (1 - pnorm(abs(z)))
+
+# Print the results
+cat("Overall correlation coefficient in Experimental arm (RPN / RAPN):", cor_exp, "\n")
+cat("Overall correlation coefficient in Control arm (OPN):", cor_ctrl, "\n")
+cat("Z-test statistic:", z, "\n")
+cat("P-value:", p_value, "\n")
+
+# Now we check if both correlation coefficients are significantly different from zero
+# Perform one-sample t-test for cor_exp
+t_exp <- z_exp / sqrt((1 / (n_exp - 3)))
+p_value_exp <- 2 * pt(abs(t_exp), df = n_exp - 2, lower.tail = FALSE)
+
+# Perform one-sample t-test for cor_ctrl
+t_ctrl <- z_ctrl / sqrt((1 / (n_ctrl - 3)))
+p_value_ctrl <- 2 * pt(abs(t_ctrl), df = n_ctrl - 2, lower.tail = FALSE)
+
+# Print the results
+cat("Difference from zero of the overall correlation coefficient in Experimental arm (RPN / RAPN)", "\n")
+cat("T-test statistic in exp:", t_exp, "\n")
+cat("P-value in exp:", p_value_exp, "\n\n")
+cat("Difference from zero of the overall correlation coefficient in Control arm (OPN)", "\n")
+cat("T-test statistic in ctrl:", t_ctrl, "\n")
+cat("P-value in ctrl:", p_value_ctrl, "\n")
+
+# Create the rows as vectors
+row_1 <- c("Overall r in exp (RPN / RAPN)", "Overall r in ctrl (OPN)", "z-test statistic", "p-value")
+row_2 <- round(c(cor_exp, cor_ctrl, z, p_value),4)
+row_3 <- c("Difference from zero in exp", "t-test statistic", "p-value","")
+row_4 <- c("", round(t_exp,4), round(p_value_exp,4),"")
+row_5 <- c("Difference from zero in ctrl", "t-test statistic", "p-value","")
+row_6 <- c("", round(t_ctrl,4), round(p_value_ctrl,4),"") 
+
+# Combine the rows into a data frame
+results_df <- data.frame(rbind(row_1, row_2, row_3, row_4, row_5, row_6))
+
+
+############################################# SAVE THE RESULTS ###################################################
+
+# Specify the file path for the Excel file
+file_path <- "C:/Users/sotbi/Desktop/Excel/COR_RES.xlsx"
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the dataset to the workbook
+addWorksheet(wb, "Sheet1")
+writeData(wb, "Sheet1", results_df)
+
+# Specify the number of decimal places for the Value columns
+style <- createStyle(numFmt = "#,##0.000000")
+addStyle(wb, "Sheet1", style, rows = NULL, cols = "B")
+
+# Save the workbook as an Excel file
+saveWorkbook(wb, file_path)
+
+# Print a confirmation message
+cat("Data exported successfully to", file_path)
+
+
+
+
+
+
+
