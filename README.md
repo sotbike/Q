@@ -1,4 +1,4 @@
-# Per minute blood loss in PN (Q)
+# Per minute blood loss in RPN/RAPN vs. OPN (Q)
 
 Study title: Comparing robotic and open partial nephrectomy under the prism of surgical precision: A meta-analysis of the average blood loss rate as a novel variable.
 
