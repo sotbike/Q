@@ -1116,12 +1116,12 @@ H_for_pool <- 300
 
 
 # Pooled meta analysis
-png("1. Forest plot - ML.png", width = W_for_pool, height = H_for_pool)
+png("1. Forest plot - MM.png", width = W_for_pool, height = H_for_pool)
 mc0re_ml<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_ml, studlab = study, comb.fixed = FALSE, hakn = TRUE)
 forestmc0re_ml<-forest(mc0re_ml, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0re_ml$lower,3))-0.1, max(round(mc0re_ml$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
-png("2. Funnel plot - ML.png", width = W_fr, height = H_fr)
+png("2. Funnel plot - MM.png", width = W_fr, height = H_fr)
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
 funnelmc0re_ml<-funnel(mc0re_ml, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(min(round(mc0re_ml$TE,3))-0.1, max(round(mc0re_ml$TE,3))+0.8), xlab = "", ylab = "", axes = FALSE)
 coords <- par("usr")
@@ -1132,7 +1132,7 @@ legend(min(round(mc0re_ml$TE,3))-0.1, 0.01, c("0.1 > p > 0.05", "0.05 > p > 0.01
 title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
 dev.off()
 
-png("3. Radial plot with Egger's test - ML.png", width = W_fr, height = H_fr)
+png("3. Radial plot with Egger's test - MM.png", width = W_fr, height = H_fr)
 radialmc0re_ml<-radial(mc0re_ml)
 eggersmc0re_ml<-metabias(mc0re_ml, method.bias = "linreg", plotit = TRUE)
 eggersmc0re_ml
@@ -1148,7 +1148,7 @@ title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
 dev.off()
 
 # Small study Effects
-png("4. Funnel plot with small study effects - ML.png", width = W_fr, height = H_fr)
+png("4. Funnel plot with small study effects - MM.png", width = W_fr, height = H_fr)
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
 l2_ml<-limitmeta(mc0re_ml)
 funnel(l2_ml, cex = 1.5, xlim = c(min(round(mc0re_ml$TE,3))-0.1, max(round(mc0re_ml$TE,3))+0.1), xlab = "", ylab = "", axes = FALSE)
@@ -1164,7 +1164,7 @@ dev.off()
 # Now we will proceed with the MRA on the new dataset: dset_ml
 
 # Meta Regression Analysis for publication year in all studies (using metafor)
-png("5. MRA plot according to publication year - ML.png", width = W_pool, height = H_pool)
+png("5. MRA plot according to publication year - MM.png", width = W_pool, height = H_pool)
 par(mar = c(5, 5.5, 4, 2) + 0.1)
 mc0remtf_ml<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_ml, append = TRUE)
 mc0remtfma_ml<-rma(yi, vi, data = mc0remtf_ml, method = "REML", mods = ~year)
@@ -1182,7 +1182,7 @@ axis(side = 1, cex.axis = 1.5)
 dev.off()
 
 
-png("6. MRA plot according to NOS quality stars - ML.png", width = W_pool, height = H_pool)
+png("6. MRA plot according to NOS quality stars - MM.png", width = W_pool, height = H_pool)
 par(mar = c(5, 5.5, 4, 2) + 0.1)
 # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
 mc0remtfstars_ml<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_ml, append = TRUE)
