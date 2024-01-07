@@ -6,7 +6,7 @@ Computational procedure: Q variable formulation, meta-analysis (MA), subgroup an
 
 Included items: individual study data ("Datasets" folder), derived data ("Derived datasets" folder) & R code ("Code" folder).
 
-Outcome: expected value & 95% confidence interval (CI95%) of the mean difference (MD) of Q when comparing robotic (RPN / RAPN) vs. open partial nephrectomy (OPN). RPN / RAPN is considered the experimental arm, while OPN the control arm.
+Outcome: expected value (EV) & 95% confidence interval (CI95%) of the mean difference (MD) of Q when comparing robotic (RPN / RAPN) vs. open partial nephrectomy (OPN). RPN / RAPN is considered the experimental arm, while OPN the control arm.
 
 Meta-analysis: R code is included for the implementation of a random effects model; subgroups: studies published before & after 2018, studies with & without patient matching, single- / multicenter studies, stratification of studies according to ROBINS-I tool class.
 
