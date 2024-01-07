@@ -4,7 +4,7 @@ Study title: Comparing robotic and open partial nephrectomy under the prism of s
 
 Computational procedure: Q variable formulation, meta-analysis (MA), subgroup analysis (SGA) & meta-regression analysis (MRA), sensitivity analysis (SA) at five levels.
 
-Included items: individual study data, sensitivity analysis data, derived data & R code.
+Included items: individual study data ("Datasets" folder), derived data ("Derived datasets" folder) & R code ("Code" folder).
 
 Outcome: expected value & 95% confidence interval (CI95%) of the mean difference (MD) of Q when comparing robotic (RPN / RAPN) vs. open partial nephrectomy (OPN). RPN / RAPN is considered the experimental arm, while OPN the control arm.
 
