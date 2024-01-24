@@ -131,24 +131,40 @@ png("5. Forest plot with subgroups according to publication year.png", width = W
 mc0repost2018<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018<-forest(mc0repost2018, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0repost2018$lower,3))-0.1, max(round(mc0repost2018$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0repost2018$I2.w,3) # Expected Values of I²
+round(mc0repost2018$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0repost2018$upper.I2.w,3) # CI95% of I² (Upper Bounds) 
 
 # subgroup analysis (matching)
 png("6. Forest plot with subgroups according to patient matching.png", width = W_for_sga, height = H_for_sga)
 mc0rematched<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = matching, print.byvar = FALSE)
 forestmc0rematched<-forest(mc0rematched, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0rematched$lower,3))-0.1, max(round(mc0rematched$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0rematched$I2.w,3) # Expected Values of I²
+round(mc0rematched$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0rematched$upper.I2.w,3) # CI95% of I² (Upper Bounds) 
 
 # subgroup analysis (center)
 png("7. Forest plot with subgroups according to the number of centers.png", width = W_for_sga, height = H_for_sga)
 mc0recenter<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = center, print.byvar = FALSE)
 forestmc0recenter<-forest(mc0recenter, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0recenter$lower,3))-0.1, max(round(mc0recenter$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0recenter$I2.w,3) # Expected Values of I²
+round(mc0recenter$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0recenter$upper.I2.w,3) # CI95% of I² (Upper Bounds)
 
 # subgroup analysis (robins)
 png("8. Forest plot with subgroups according to ROBINS-I.png", width = W_for_sga, height = H_for_sga)
 mc0rerobins<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins<-forest(mc0rerobins, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0rerobins$lower,3))-0.1, max(round(mc0rerobins$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0rerobins$I2.w,3) # Expected Values of I²
+round(mc0rerobins$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0rerobins$upper.I2.w,3) # CI95% of I² (Upper Bounds)
 
 # We have similar patterns of MRA plots from now on, so we can adjust their width & height parameters from here
 # Pooled
@@ -554,24 +570,40 @@ png("5. Forest plot with subgroups according to publication year - OSA.png", wid
 mc0repost2018_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_osa, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = post2018, print.byvar = FALSE)
 forestmc0repost2018_osa<-forest(mc0repost2018_osa, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0repost2018_osa$lower,3))-0.1, max(round(mc0repost2018_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0repost2018_osa$I2.w,3) # Expected Values of I²
+round(mc0repost2018_osa$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0repost2018_osa$upper.I2.w,3) # CI95% of I² (Upper Bounds) 
 
 # subgroup analysis (matching)
 png("6. Forest plot with subgroups according to patient matching - OSA.png", width = W_for_sga, height = H_for_sga)
 mc0rematched_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_osa, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = matching, print.byvar = FALSE)
 forestmc0rematched_osa<-forest(mc0rematched_osa, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0rematched_osa$lower,3))-0.1, max(round(mc0rematched_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0rematched_osa$I2.w,3) # Expected Values of I²
+round(mc0rematched_osa$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0rematched_osa$upper.I2.w,3) # CI95% of I² (Upper Bounds) 
 
 # subgroup analysis (center)
 png("7. Forest plot with subgroups according to the number of centers - OSA.png", width = W_for_sga, height = H_for_sga)
 mc0recenter_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_osa, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = center, print.byvar = FALSE)
 forestmc0recenter_osa<-forest(mc0recenter_osa, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0recenter_osa$lower,3))-0.1, max(round(mc0recenter_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0recenter_osa$I2.w,3) # Expected Values of I²
+round(mc0recenter_osa$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0recenter_osa$upper.I2.w,3) # CI95% of I² (Upper Bounds) 
 
 # subgroup analysis (robins)
 png("8. Forest plot with subgroups according to ROBINS-I - OSA.png", width = W_for_sga, height = H_for_sga)
 mc0rerobins_osa<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_osa, comb.fixed = FALSE, hakn = TRUE, studlab = study, byvar = robins, print.byvar = FALSE)
 forestmc0rerobins_osa<-forest(mc0rerobins_osa, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0rerobins_osa$lower,3))-0.1, max(round(mc0rerobins_osa$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
+# Heterogeneity assessment
+round(mc0rerobins_osa$I2.w,3) # Expected Values of I²
+round(mc0rerobins_osa$lower.I2.w,3) # CI95% of I² (Lower Bounds) 
+round(mc0rerobins_osa$upper.I2.w,3) # CI95% of I² (Upper Bounds)
 
 
 # Now we will proceed with the MRA on the new dataset: dset_osa
@@ -861,7 +893,7 @@ dev.off()
 
 png("3. Radial plot with Egger's test - ML.png", width = W_fr, height = H_fr)
 radialmc0re_ml<-radial(mc0re_ml)
-eggersmc0re_ml<-metabias(mc0re_ml, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_ml<-metabias(mc0re_ml, method.bias = "linreg", plotit = TRUE, k.min = 5)
 eggersmc0re_ml
 regmc0re_ml<-lm(I(mc0re_ml$TE/mc0re_ml$seTE) ~ I(1/mc0re_ml$seTE))
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
@@ -999,7 +1031,7 @@ dev.off()
 
 png("3. Radial plot with Egger's test - LS.png", width = W_fr, height = H_fr)
 radialmc0re_ls<-radial(mc0re_ls)
-eggersmc0re_ls<-metabias(mc0re_ls, method.bias = "linreg", plotit = TRUE)
+eggersmc0re_ls<-metabias(mc0re_ls, method.bias = "linreg", plotit = TRUE, k.min = 5)
 eggersmc0re_ls
 regmc0re_ls<-lm(I(mc0re_ls$TE/mc0re_ls$seTE) ~ I(1/mc0re_ls$seTE))
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
@@ -1107,7 +1139,7 @@ dset$robins <- factor(dset$robins, levels = order_robins)
 
 
 # Then we are going to transform the dset to meet the requirements of multicenter studies with patient matching
-dset_ml <- dset[dset$matching=="Studies with patient matching" & dset$center=="Multicenter studies",]
+dset_mm <- dset[dset$matching=="Studies with patient matching" & dset$center=="Multicenter studies",]
 
 # Now we define the width & height parameters for the new forest plots
 # Pooled analysis forest plot parameters
@@ -1117,67 +1149,67 @@ H_for_pool <- 300
 
 # Pooled meta analysis
 png("1. Forest plot - MM.png", width = W_for_pool, height = H_for_pool)
-mc0re_ml<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_ml, studlab = study, comb.fixed = FALSE, hakn = TRUE)
-forestmc0re_ml<-forest(mc0re_ml, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0re_ml$lower,3))-0.1, max(round(mc0re_ml$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
+mc0re_mm<-metacont(nexp,mexp,sexp,nctrl,mctrl,sctrl,data = dset_mm, studlab = study, comb.fixed = FALSE, hakn = TRUE)
+forestmc0re_mm<-forest(mc0re_mm, text.addline1 = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlim = c(min(round(mc0re_mm$lower,3))-0.1, max(round(mc0re_mm$upper,3))+0.1), showweights = TRUE, digits = 3, digits.se = 3, fs.xlab = 1, label.e = "RPN / RAPN", label.c = "OPN", label.right = "Favours OPN", label.left = "Favours RPN / RAPN", just = "center")
 dev.off()
 
 png("2. Funnel plot - MM.png", width = W_fr, height = H_fr)
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
-funnelmc0re_ml<-funnel(mc0re_ml, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(min(round(mc0re_ml$TE,3))-0.1, max(round(mc0re_ml$TE,3))+0.8), xlab = "", ylab = "", axes = FALSE)
+funnelmc0re_mm<-funnel(mc0re_mm, pch = 20,cex = 1, contour = c(0.9,0.95,0.99), col.contour = c("darkgray", "gray", "lightgray"), xlim = c(min(round(mc0re_mm$TE,3))-0.1, max(round(mc0re_mm$TE,3))+0.8), xlab = "", ylab = "", axes = FALSE)
 coords <- par("usr")
 rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
 axis(2, cex.axis = 1.5, pos = coords[1])
 axis(1, cex.axis = 1.5, pos = coords[3])
-legend(min(round(mc0re_ml$TE,3))-0.1, 0.01, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
+legend(min(round(mc0re_mm$TE,3))-0.1, 0.01, c("0.1 > p > 0.05", "0.05 > p > 0.01", "p < 0.01"), fill = c("darkgray", "gray", "lightgray"), bty = "n", cex = 1.5)
 title("Funnel plot with contours of statistical significance", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
 dev.off()
 
 png("3. Radial plot with Egger's test - MM.png", width = W_fr, height = H_fr)
-radialmc0re_ml<-radial(mc0re_ml)
-eggersmc0re_ml<-metabias(mc0re_ml, method.bias = "linreg", plotit = TRUE)
-eggersmc0re_ml
-regmc0re_ml<-lm(I(mc0re_ml$TE/mc0re_ml$seTE) ~ I(1/mc0re_ml$seTE))
+radialmc0re_mm<-radial(mc0re_mm)
+eggersmc0re_mm<-metabias(mc0re_mm, method.bias = "linreg", plotit = TRUE, k.min = 5)
+eggersmc0re_mm
+regmc0re_mm<-lm(I(mc0re_mm$TE/mc0re_mm$seTE) ~ I(1/mc0re_mm$seTE))
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0))
-radial(mc0re_ml, cex = 1.5, cex.lab = 1.5, axes = FALSE)
+radial(mc0re_mm, cex = 1.5, cex.lab = 1.5, axes = FALSE)
 coords <- par("usr")
 rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
 axis(2, cex.axis = 1.5, pos = coords[1])
 axis(1, cex.axis = 1.5, pos = coords[3])
-abline(regmc0re_ml)
+abline(regmc0re_mm)
 title("Radial plot with a solid regression line for Egger's test", cex.main = 2)
 dev.off()
 
 # Small study Effects
 png("4. Funnel plot with small study effects - MM.png", width = W_fr, height = H_fr)
 par(mar = c(6, 6, 5, 4), mgp = c(3.75, 1, 0)) 
-l2_ml<-limitmeta(mc0re_ml)
-funnel(l2_ml, cex = 1.5, xlim = c(min(round(mc0re_ml$TE,3))-0.1, max(round(mc0re_ml$TE,3))+0.1), xlab = "", ylab = "", axes = FALSE)
+l2_mm<-limitmeta(mc0re_mm)
+funnel(l2_mm, cex = 1.5, xlim = c(min(round(mc0re_mm$TE,3))-0.1, max(round(mc0re_mm$TE,3))+0.1), xlab = "", ylab = "", axes = FALSE)
 coords <- par("usr")
 rect(coords[1], coords[3], coords[2], coords[4], border = "black", lwd = 1)
 axis(2, cex.axis = 1.5, pos = coords[1])
 axis(1, cex.axis = 1.5, pos = coords[3])
-print(l2_ml, digits = 3)
+print(l2_mm, digits = 3)
 title("Funnel plot with a curved regression line for small study effects", cex.main = 2, xlab = "Mean Difference (MD)", ylab = "Standard Error (SE)", cex.lab = 1.5)
 dev.off()
 
 
-# Now we will proceed with the MRA on the new dataset: dset_ml
+# Now we will proceed with the MRA on the new dataset: dset_mm
 
 # Meta Regression Analysis for publication year in all studies (using metafor)
 png("5. MRA plot according to publication year - MM.png", width = W_pool, height = H_pool)
 par(mar = c(5, 5.5, 4, 2) + 0.1)
-mc0remtf_ml<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_ml, append = TRUE)
-mc0remtfma_ml<-rma(yi, vi, data = mc0remtf_ml, method = "REML", mods = ~year)
-yearvec_ml<-seq(min(dset_ml$year), max(dset_ml$year), 1)
-preds2_ml<-predict(mc0remtfma_ml, newmods = yearvec_ml)
-wi2_ml<-1/sqrt(mc0remtf_ml$vi+mc0remtfma_ml$tau2)
-size2_ml<-1+2*(wi2_ml - min(wi2_ml)) / (max(wi2_ml) - min(wi2_ml))
-plot(mc0remtf_ml$year, mc0remtf_ml$yi, pch = 1, cex = size2_ml, xlim = c(min(mc0remtf_ml$year)-1, max(mc0remtf_ml$year)+1), ylim = c(min(mc0remtf_ml$yi)-1, max(mc0remtf_ml$yi)+1), ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
-lines(yearvec_ml, preds2_ml$pred, lwd = 2, col = "red")
-lines(yearvec_ml, preds2_ml$ci.lb, lty = "dashed")
-lines(yearvec_ml, preds2_ml$ci.ub, lty = "dashed")
+mc0remtf_mm<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_mm, append = TRUE)
+mc0remtfma_mm<-rma(yi, vi, data = mc0remtf_mm, method = "REML", mods = ~year)
+yearvec_mm<-seq(min(dset_mm$year), max(dset_mm$year), 1)
+preds2_mm<-predict(mc0remtfma_mm, newmods = yearvec_mm)
+wi2_mm<-1/sqrt(mc0remtf_mm$vi+mc0remtfma_mm$tau2)
+size2_mm<-1+2*(wi2_mm - min(wi2_mm)) / (max(wi2_mm) - min(wi2_mm))
+plot(mc0remtf_mm$year, mc0remtf_mm$yi, pch = 1, cex = size2_mm, xlim = c(min(mc0remtf_mm$year)-1, max(mc0remtf_mm$year)+1), ylim = c(min(mc0remtf_mm$yi)-1, max(mc0remtf_mm$yi)+1), ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "Year of publication", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(yearvec_mm, preds2_mm$pred, lwd = 2, col = "red")
+lines(yearvec_mm, preds2_mm$ci.lb, lty = "dashed")
+lines(yearvec_mm, preds2_mm$ci.ub, lty = "dashed")
 abline(h=0, lwd = 2, lty = "dotted")
-axis(side = 2, at = seq(round(min(mc0remtf_ml$yi)-1,0), round(max(mc0remtf_ml$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 2, at = seq(round(min(mc0remtf_mm$yi)-1,0), round(max(mc0remtf_mm$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
 
@@ -1185,18 +1217,18 @@ dev.off()
 png("6. MRA plot according to NOS quality stars - MM.png", width = W_pool, height = H_pool)
 par(mar = c(5, 5.5, 4, 2) + 0.1)
 # Meta Regression Analysis for Newcastle-Ottawa Scale (NOS) quality stars in all studies (using metafor)
-mc0remtfstars_ml<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_ml, append = TRUE)
-mc0remtfmastars_ml<-rma(yi, vi, data = mc0remtfstars_ml, method = "REML", mods = ~stars)
-starsvec_ml<-seq(min(dset_ml$stars), max(dset_ml$stars), 1)
-predsstars2_ml<-predict(mc0remtfmastars_ml, newmods = starsvec_ml)
-wistars2_ml<-1/sqrt(mc0remtfstars_ml$vi+mc0remtfmastars_ml$tau2)
-sizestars2_ml<-1+2*(wistars2_ml - min(wistars2_ml)) / (max(wistars2_ml) - min(wistars2_ml))
-plot(mc0remtfstars_ml$stars, mc0remtfstars_ml$yi, pch = 1, cex = sizestars2_ml, xlim = c(min(mc0remtfstars_ml$stars)-1, max(mc0remtfstars_ml$stars)+1), ylim = c(min(mc0remtfstars_ml$yi)-1, max(mc0remtfstars_ml$yi)+1), ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
-lines(starsvec_ml, predsstars2_ml$pred, lwd = 2, col = "red")
-lines(starsvec_ml, predsstars2_ml$ci.lb, lty = "dashed")
-lines(starsvec_ml, predsstars2_ml$ci.ub, lty = "dashed")
+mc0remtfstars_mm<-escalc(measure = "MD",n1i = nexp, m1i = mexp, sd1i = sexp, n2i = nctrl,m2i = mctrl, sd2i = sctrl, data = dset_mm, append = TRUE)
+mc0remtfmastars_mm<-rma(yi, vi, data = mc0remtfstars_mm, method = "REML", mods = ~stars)
+starsvec_mm<-seq(min(dset_mm$stars), max(dset_mm$stars), 1)
+predsstars2_mm<-predict(mc0remtfmastars_mm, newmods = starsvec_mm)
+wistars2_mm<-1/sqrt(mc0remtfstars_mm$vi+mc0remtfmastars_mm$tau2)
+sizestars2_mm<-1+2*(wistars2_mm - min(wistars2_mm)) / (max(wistars2_mm) - min(wistars2_mm))
+plot(mc0remtfstars_mm$stars, mc0remtfstars_mm$yi, pch = 1, cex = sizestars2_mm, xlim = c(min(mc0remtfstars_mm$stars)-1, max(mc0remtfstars_mm$stars)+1), ylim = c(min(mc0remtfstars_mm$yi)-1, max(mc0remtfstars_mm$yi)+1), ylab = "Mean difference in per minute blood loss (RPN / RAPN vs. OPN) in ml/min", xlab = "NOS quality stars", main = "Meta-regression of the comparative effect in all studies", cex.main = 2, cex.lab = 1.5, xaxt = "n", yaxt = "n")
+lines(starsvec_mm, predsstars2_mm$pred, lwd = 2, col = "red")
+lines(starsvec_mm, predsstars2_mm$ci.lb, lty = "dashed")
+lines(starsvec_mm, predsstars2_mm$ci.ub, lty = "dashed")
 abline(h=0, lwd = 2, lty = "dotted")
-axis(side = 2, at = seq(round(min(mc0remtfstars_ml$yi)-1,0), round(max(mc0remtfstars_ml$yi)+1,0), 1), cex.axis = 1.5)
+axis(side = 2, at = seq(round(min(mc0remtfstars_mm$yi)-1,0), round(max(mc0remtfstars_mm$yi)+1,0), 1), cex.axis = 1.5)
 axis(side = 1, cex.axis = 1.5)
 dev.off()
 
