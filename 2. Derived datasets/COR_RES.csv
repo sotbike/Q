@@ -1,7 +1,0 @@
-X1;X2;X3;X4
-Overall r in exp (RPN / RAPN);Overall r in ctrl (OPN);z-test statistic;p-value
-0.1896;0.0892;0.4468;0.655
-Difference from zero in exp;t-test statistic;p-value;
-;1.1831;0.2439;
-Difference from zero in ctrl;t-test statistic;p-value;
-;0.5513;0.5846;
